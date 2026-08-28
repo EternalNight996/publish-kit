@@ -1,0 +1,44 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npmrc
+
+# Build
+dist/
+build/
+out/
+target/
+
+# Logs / crash
+*.log
+crash.log
+startup.log
+
+# Test / coverage
+coverage/
+.nyc_output/
+
+# Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+
+# Misc
+*.spec
+*.tgz
+.cache/
