@@ -1,11 +1,18 @@
 # 🚀 publish-kit — 面向 AI Agent 的发布工具箱
 
 <p align="center">
+  <img src="./assets/readme-banner.svg" alt="publish-kit: ship once, every channel aligned" width="100%" />
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Agent%20Skill-bundle-3B82F6" alt="Agent Skill bundle" />
   <img src="https://img.shields.io/github/v/release/EternalNight996/publish-kit" alt="GitHub release" />
   <img src="https://img.shields.io/github/stars/EternalNight996/publish-kit?style=flat" alt="GitHub stars" />
   <img src="https://img.shields.io/github/license/EternalNight996/publish-kit" alt="license" />
   <img src="https://img.shields.io/badge/DSH--DEPLOY-native-10B981" alt="DSH-native" />
+  <img src="https://img.shields.io/badge/npm-opt--in--wrapper-CB3837" alt="npm opt-in wrapper" />
+  <img src="https://img.shields.io/badge/cargo-crates.io-DEA584" alt="cargo crates.io" />
+  <img src="https://img.shields.io/badge/PyPI-PyInstaller-3776AB" alt="PyPI / PyInstaller" />
 </p>
 
 > **一句「发布它」就让每个渠道都对齐。** 这是一个目录式 Agent Skill，把发布动作拆成跨 npm 注册表、GitHub + Gitee 双远端、市场收录、双语 README、git tag 等所有渠道的协调动作——一次发布，全程一致。
@@ -132,6 +139,165 @@ bump 版本 → test → build → commit → npm publish（一次性 `.npmrc.pu
 - **EXAMPLES.md** — 实战 transcript：本技能自身的 v0.1.0 发布（18 步）+ 完整 DSH 插件 npm 流程 + 7 行坑位速查。
 
 </details>
+
+---
+
+## 🌐 支持的语言与打包生态
+
+publish-kit **与宿主无关**。核心 SOP 适用于任何跨渠道发布流程；每个轨道的模版覆盖最常见的语言和注册表。当你根本不发 npm 时这个技能也照样好用——每个轨道都是可选的。
+
+### DSH 生态（原生）
+
+| 轨道 | 发布什么 | 落点 |
+| --- | --- | --- |
+| **DSH cordis 插件** | `package.json` + `cordis.patch.yml` + `lib/client.js` | npm 注册表 + 4 个 DSH 市场 + GitHub + Gitee |
+| **DSH skill bundle**（本仓库） | `SKILL.md` + 同目录辅助 `.md` 文件 | GitHub + Gitee + `~/.agents/skills/`（无 npm） |
+| **通过 npm wrapper 的 DSH 插件** | npm 包把 `skills/publish-kit/` 打成资产 | npm + DSH `dsh plugin` 安装路径 |
+| **DSH theme 资源** | `assets/{backgrounds,themes}/` 运行时 URL 保留在 npm tarball；展示素材走 GitHub raw | npm + GitHub + Gitee |
+
+### 非 DSH 语言库（与宿主无关）
+
+| 轨道 | 发布什么 | 落点 |
+| --- | --- | --- |
+| **npm / JavaScript / TypeScript** | `package.json` + `dist/`（或 `lib/`） | npmjs.org + GitHub + Gitee |
+| **cargo / Rust** | `Cargo.toml` + `src/`（不可变版本） | crates.io + GitHub + Gitee |
+| **PyPI / Python** | `pyproject.toml` + `<pkg>/` | pypi.org + GitHub + Gitee |
+| **PyInstaller exe**（Windows / macOS / Linux） | 单文件可执行，输出路径锚定 `sys.executable` | GitHub Releases + Gitee Releases |
+| **Homebrew formula**（macOS） | `<formula>.rb` | homebrew-core PR 或个人 tap |
+| **Scoop bucket**（Windows） | `<bucket>/<pkg>.json` | 主 bucket PR 或个人 bucket |
+| **Chocolatey 包**（Windows） | `<pkg>.nuspec` + `tools/*.ps1` | chocolatey.org 审核队列 |
+| **Go 模块** | `go.mod` + 版本化 git tag（无独立注册表；模块按 tag 解析） | 仅 GitHub + Gitee |
+| **Docker 镜像** | 多阶段 `Dockerfile`（linux/amd64、linux/arm64） | Docker Hub + GHCR + Gitee Go Registry |
+| **Maven Central / JCenter**（Java / Kotlin） | `pom.xml` + sources jar + GPG 签名产物 | search.maven.org + GitHub + Gitee |
+| **NuGet**（.NET） | `.nuspec` + `.nupkg` | nuget.org + GitHub + Gitee |
+| **RubyGems**（Ruby） | `<gem>.gemspec` | rubygems.org + GitHub + Gitee |
+
+每个非 DSH 轨道走同一 SOP：升版本 → test + build → publish → git tag → push tags 到双远端 → 提交市场（若适用）→ RP 字段。
+
+### publish-kit 明确不覆盖的轨道
+
+- monorepo 版本策略（`lerna` / `changesets` / `nx release`）————查 `find-skills` 找 monorepo 工具。
+- 语言专属 lint/test 设置（每语言独立技能）。
+- 宿主运行时调试（DSH 插件加载器错误、npm peer 解析诊断）。
+- 包内部设计（package API 形态、库架构）。
+
+---
+
+## 📚 Skill bundle 收录规范
+
+publish-kit 类 bundle 要在所有消费它的宿主里可见，必须满足下面的约定。本节既是** publish-kit 自身遵循的标准**，也是**你做自己的 skill bundle 时该走的清单**。
+
+### 通用要求（所有宿主）
+
+| 要求 | 为什么 |
+| --- | --- |
+| 目录布局：`<bundle>/SKILL.md`（+ 可选同级 `.md` 文件） | 所有宿主以含 `SKILL.md` 的文件夹为单位扫描 |
+| `SKILL.md` frontmatter `name` + `description`（模型触发）| 两项都要有才能进目录 |
+| `description` 含一句「Use when ...」，附具体触发分支 | 一分支一触发；近义词合并 |
+| `name` kebab-case 小写 | 所有宿主强制 |
+| `SKILL.md` 正文 <100 行 | 业内通行（DEEP） |
+| 密集事实放 `REFERENCE.md`；模版放 `TEMPLATE.md`；安装放 `INSTALL.md` | 渐进披露，Agent 只按需加载 |
+| 仓库根 `LICENSE`（推荐 MIT）+ `CHANGELOG.md` | 给人与自动发现都看的信任信号 |
+| 仓库**公开** | 所有宿主强制 |
+
+### DSH 市场收录矩阵
+
+| 市场 | 机制 | 手动步骤 | 必备产物 |
+| --- | --- | --- | --- |
+| `npx skills add <repo-url>` | Vercel CLI 读 `.claude-plugin/plugin.json` | 用户无需操作 | `.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json` |
+| **awesome-dsh-plugin** | PR | 是 | `data/plugins/<owner>__<repo>.yml` 带 `category: skill`；之后跑 `node scripts/generate-readme.mjs` |
+| **dsh-market**（2BingLing） | Issue | 是 | 标题 `[提交工具] <name>`；引用 topic `dsh-skill` |
+| **dsh-marketplace**（ouyangyipeng） | 按 topic 自动扫描 | 无 | 仓库 topic `dsh-skill`（cordis 插件用 `dsh-plugin`） |
+| **dsh-find-plugin** | 按 topic 搜索 | 无 | topic `dsh-skill`（或 `dsh-plugin`） |
+| **dsh-plugin-marketplace**（YELEBAI） | 每 2h 自动扫描 + 静态验证 | 无 | topic + `package.json#dsh.marketplace` 元数据（仅 cordis 插件）|
+| `dsh-agent-skills` 插件（DSH 设置 UI）| 扫 5 个目录 | 无 | 放进 `~/.agents/skills/`、`~/.claude/skills/`、`~/.codex/skills/`、`~/.gemini/skills/` 或 `~/.config/opencode/skills/` 任一 |
+
+### GitHub 仓库 RP（市场自动扫描的必备）
+
+```bash
+# Description（一行英文，含 SEO 关键词）
+gh api -X PATCH repos/<owner>/<repo> -f description="<一行>"
+
+# Topic（独立端点——千万别塞进上面的 PATCH，会返 400）
+gh api -X PUT repos/<owner>/<repo>/topics --input topics.json
+# topics.json 内容：{"names":["dsh-skill","agent-skills","publishing","release","npm","cargo","pypi"]}
+```
+
+### Topic 分类
+
+| 领域 | 必备 topic | 补充 |
+| --- | --- | --- |
+| Skill bundle | `dsh-skill`、`agent-skills` | `publishing`、`release`、领域专属（如 `npm`、`cargo`） |
+| Cordis 插件 | `dsh-plugin`、`deepseek-harness` | `theme`、`memory`、`tooling` 等 |
+| 两者兼是 | 两套都要 | `awesome-dsh-plugin` |
+
+### GitHub social preview
+
+在 **Settings → General → Social preview** 上传 `assets/social-preview.png`（1280×640 PNG）。GitHub / Gitee / npm / Twitter 分享 URL 时都用这张图——是点击率的**最大杠杆**。详细设计见下一节。
+
+### 给技能作者（发布自己的 bundle）
+
+1. 以本仓库为模板——复制 `.agents/skills/<your-skill>/` 和顶层支撑文件。
+2. 加你 bundle 需要的 topic（如果只发 cordis 插件，别加 `dsh-skill`）。
+3. 给 `awesome-dsh-plugin` 开一个 PR，给 `dsh-market` 开一个 Issue。
+4. 正式发布前先用自己的技能在自己项目上跑一遍——「eat your own dogfood」证明模版能工作。
+
+---
+
+## 🎨 README 与主页：怎么最大化点击
+
+新发布的最大杠杆点是访客在 GitHub 仓库主页花的**头 5 秒**。本节把 publish-kit 自己在用的做法固定下来——你可以照搬到自己的 bundle。
+
+### 仓库主页（GitHub repo landing page）
+
+| 元素 | 怎么做 | 为什么 |
+| --- | --- | --- |
+| **Social preview 图** | 在 Settings → General 上传 `assets/social-preview.png`（1280×640） | 分享 URL 时的最大点击率杠杆（社交、npm 搜索、PR 里都用它） |
+| **Description** | 一行英文，含具体关键词（不要「awesome X framework」，要「发布工具箱，覆盖 npm/cargo/PyPI + DSH 市场」） | 搜索结果里显示；模糊的描述直接被跳过 |
+| **Topic** | 5-10 个，全部相关 | 侧边栏筛选 + 市场自动发现都依赖 topic |
+| **Pinned repos** | Pin 2-3 个最常用的技能或兄弟仓库 | 暗示访客：这是生态的一部分，不是一次性 |
+| **About 侧栏** | Website、Releases（用 GitHub Releases 时）、Packages（发 npm 时）、Projects（用项目板时） | 每多一个链接就多一个留住访客的机会 |
+
+### README 结构（被访问的页面）
+
+| 章节 | 为什么重要 |
+| --- | --- |
+| **顶部 banner 图**（满宽） | 视觉钩；让访客 1 秒判断「是不是给我用」 |
+| **一行 tagline + badge 行** | 滚动前先告诉访客：是什么 + 什么语言/注册表 |
+| **痛点表**（3-5 行） | 访客用具体痛点自我归类；「适合所有人」等于没人 |
+| **Before/After 映射** | 证明你懂他们的问题 + 有具体解法 |
+| **Mermaid（或静态表）流程** | 证明系统有结构，不是口号 |
+| **「为什么是 X 不是 Y」核心设计节 | 区分长相相似者；人买你时看到的是「你做过权衡」 |
+| **与替代方案的对比表** | 访客会想「为啥不用 [替代]？」——你提前回答 |
+| **安装命令在前 30 行** | 翻不到折叠线以下 = 丢掉 50%+ 潜在用户 |
+| **Roadmap** | 暗示项目活着；让访客用 issue 投票 |
+| **发布记录**（或链到 CHANGELOG.md） | 信任信号——「这个项目发过货」 |
+| **License + 贡献链接** | 移除下一步的摩擦（用、参与、fork） |
+
+### 资产卫生（决定点击）
+
+- **顶部 banner。** 满宽 PNG 或 WebP（GitHub README 渲染优先 `assets/readme-banner.{svg,png,webp}`，用相对 `./assets/...` 引用）。
+- **GIF <10MB。** 用 ffmpeg 压缩（REFERENCE.md D6）。超阈值 GitHub 会悄悄丢图。
+- **跨 GitHub + npm + Gitee 都用 `raw.githubusercontent.com` URL。** 图片保留在 git 里（双 git 宿主都能渲染），但不在 npm tarball 里。
+- **Mermaid 配静态表 fallback。** 部分宿主（旧 Cursor、Windsurf、Copilot）不渲染 Mermaid；给它们准备一张平行表。
+- **钉一张结果图/GIF**，不是安装命令。访客想看成果，再决定要不要装。
+
+### SEO 与可分享性
+
+- Description 一行英文，至少含 2 个搜索与人和搜索引擎都用的关键词（如「发布工具箱，面向 AI Agent，npm cargo PyPI」）。
+- Topic 永远别照搬 description；把它们当 tag 不是 keyword。目标 5-10 个。
+- README H1 跟仓库名一致。GitHub 把 H1 当页面标题。
+- Social preview 必须有项目名 + 一行 tagline + 版本。文字墙会杀死点击率。
+
+### 拉热度的社区信号
+
+- **README 里加 Star CTA**——顶部一行，不要太凶。
+- **「Used by」节**（若有真实项目依赖）——具体的社会证明。
+- **仓库 Settings → Features 钉一个 Discussion / Q&A 分类**——邀人提问，攒社区。
+- **明确 License**——MIT 最大覆盖。不写 License = 法律模糊 = 流失用户。
+- **Sponsor 按钮**（`.github/FUNDING.yml`）——可选，但暗示可持续。
+
+publish-kit 自身就在执行上面每一条；你正在读的这份 README 就是范例。
 
 ---
 
