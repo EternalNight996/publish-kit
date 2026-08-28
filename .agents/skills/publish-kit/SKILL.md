@@ -50,6 +50,7 @@ RIGHT: resolve the real hash from `git log` messages, tag it, verify the subject
 | File | Use when you need |
 | --- | --- |
 | [REFERENCE.md](REFERENCE.md) | dense facts per track: marketplace table, token handling, semver ranges, slimming, cargo/PyPI, troubleshooting |
+| [EXAMPLES.md](EXAMPLES.md) | end-to-end worked transcripts: this skill's own v0.1.0 release and a full DSH plugin npm flow |
 | [TEMPLATE.md](TEMPLATE.md) | copy-paste skeletons: package.json, bilingual README, marketplace yml, publish.bat, GitHub Actions release, Cargo.toml, pyproject.toml |
 | [INSTALL.md](INSTALL.md) | install this skill into DSH, Claude Code, Codex, Gemini, or Cursor |
 | [DSH-DEPLOY.md](DSH-DEPLOY.md) | DSH-specific deployment: where the runtime finds skills, watch semantics, ranks, distribution channels |

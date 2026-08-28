@@ -98,6 +98,10 @@ DSH-specific deployment (six discovery roots, watch semantics, rank ordering) li
 
 Frontmatter uses only the universally-supported `name` + `description` fields. Full matrix and body-format limits in [`.agents/skills/publish-kit/COMPATIBILITY.md`](./.agents/skills/publish-kit/COMPATIBILITY.md).
 
+## One-shot release script
+
+For a fully automated release that follows this playbook end-to-end, see [`scripts/bootstrap-release.ps1`](./scripts/bootstrap-release.ps1) (PowerShell) and [`scripts/bootstrap-release.sh`](./scripts/bootstrap-release.sh) (bash). They run the six-step flow: bump version, test+build, commit, npm publish (with throwaway token), tag + push both remotes, GitHub RP fields. Pass `patch`, `minor`, or `major` as the argument.
+
 ## How the skill gets triggered
 
 The agent reads the `description` frontmatter field on every catalog refresh. publish-kit's description carries the concrete trigger branches:
