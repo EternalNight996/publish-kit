@@ -18,6 +18,10 @@
 > **One release prompt, every channel aligned.** A directory-bundle Agent Skill that turns "release this" into a coordinated publish across npm registries, GitHub + Gitee remotes, marketplace listings, repo RP fields, bilingual README, and git tags — all in lockstep.
 > Zero npm publish required to use it. Works on DSH, Claude Code, Codex CLI, Gemini CLI, Cursor.
 
+<p align="center">
+  <strong>English</strong> · <a href="./README.zh.md">简体中文</a>
+</p>
+
 <p align="center"><strong>⭐ If you ship software and have ever lost a version to "I forgot to tag it,"</strong> give it a Star.
 <br/><sub>One command: <code>npx skills add https://github.com/EternalNight996/publish-kit</code></sub></p>
 

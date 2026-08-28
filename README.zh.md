@@ -18,6 +18,10 @@
 > **一句「发布它」就让每个渠道都对齐。** 这是一个目录式 Agent Skill，把发布动作拆成跨 npm 注册表、GitHub + Gitee 双远端、市场收录、双语 README、git tag 等所有渠道的协调动作——一次发布，全程一致。
 > **使用它本身不需要 npm 发布。** 兼容 DSH / Claude Code / Codex CLI / Gemini CLI / Cursor。
 
+<p align="center">
+  <a href="./README.md">English</a> · <strong>简体中文</strong>
+</p>
+
 <p align="center"><strong>⭐ 如果你发过包又曾因「忘了打 tag」而丢了版本，</strong> 给个 Star。
 <br/><sub>一条命令：<code>npx skills add https://github.com/EternalNight996/publish-kit</code></sub></p>
 
