@@ -428,6 +428,10 @@ publish-kit/
 
 **v0.2.0（当前）：** **npm 包 `@eternalnight/publish-kit`** 已发布到 https://registry.npmjs.org/——19 文件 / 51 KB / scoped / MIT / 显式 registry / 签名。把 skill 目录打成 tarball 资产，脚本作为 `bin` 条目，含 `cordis.patch.yml` + `dsh.marketplace` 元数据支持 `dsh plugin` 安装路径。README 顶部 Install + Usage + 支持的 agent 与语言表。所有「未发布 npm」标注同步更新。
 
+**v0.2.1（当前）：** 文档清理——删掉两个 README 顶部重复的旧「安装」节；标记 Roadmap 中 npm wrapper 条目为已完成（v0.2.0 已发布）。
+
+**v0.3.0（当前）：** 仓库治理——`.github/ISSUE_TEMPLATE/{bug_report,feature_request,release_question}.yml`、`.github/PULL_REQUEST_TEMPLATE.md`、`.github/CONTRIBUTING.md`、`.github/SECURITY.md`、`.github/CODE_OF_CONDUCT.md`、`.github/FUNDING.yml`；CI workflow（`.github/workflows/ci.yml`，4 jobs：validate-skill / check-readme-links / check-package / check-markdown-toc）；`assets/social-preview.png`（1280×640）。
+
 **即将推出：**
 - [ ] `release-doctor.mjs` — 起飞前检查器，扫描目标仓库对照 REFERENCE.md J 的 9 行坑位表，发布前报漂移
 - [ ] `verify-release.mjs` — 发布后验证器，走每个渠道（npm view、gh release、gitee release、awesome-dsh-plugin 搜索、dsh-market Issue 状态、GitHub topics、市场目录）并报每渠道状态
@@ -438,6 +442,8 @@ publish-kit/
 
 ## 📦 发布记录
 
+- **v0.3.0** (2026-08-28)：仓库治理——issue 模板（bug/feature/question）、PR 模板、CONTRIBUTING、SECURITY、CODE_OF_CONDUCT、FUNDING；CI workflow（4 jobs）；social-preview.png（1280×640）。
+- **v0.2.1** (2026-08-28)：文档清理——删掉双语 README 重复的旧「安装」节；标记 Roadmap npm wrapper 条目为已完成。
 - **v0.2.0** (2026-08-28)：npm 包 `@eternalnight/publish-kit` 发布（51 KB / 19 文件 / 签名）；顶部 Install + Usage + 支持的 agent 与语言表；README/DSH-DEPLOY/CHANGELOG 中 npm 发布标注同步。
 - **v0.1.5** (2026-08-28)：`scripts/release-exe.{ps1,sh}`（PyInstaller / Go / Rust / Electron build + checksum + GitHub Release）；TEMPLATE.md K 节（4 个 GitHub Actions workflow）；EXAMPLES.md Example 3（Rust CLI transcript）；README 中英切换按钮。
 - **v0.1.4** (2026-08-28)：两个 README 顶部加中英切换按钮。

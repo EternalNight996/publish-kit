@@ -16,6 +16,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DSH-DEPLOY.md`: extended with a new "Skill bundle inclusion standard (the canonical checklist)" chapter — required file layout, frontmatter contract, repo-level requirements, marketplace-by-marketplace detailed steps (PR/Issue/auto-scan patterns + npm wrapper), topic checklist, disqualifiers, inclusion boosters.
 - New README badge set: Agent Skill bundle, GitHub release, stars, license, DSH-DEPLOY-native, npm opt-in wrapper, cargo crates.io, PyPI/PyInstaller (8 badges total).
 
+## [0.3.0] - 2026-08-28
+
+### Added
+- `.github/ISSUE_TEMPLATE/bug_report.yml`: bug report template with agent / install-method / release-track dropdowns + env block.
+- `.github/ISSUE_TEMPLATE/feature_request.yml`: feature request template with track dropdown + proposal structure.
+- `.github/ISSUE_TEMPLATE/release_question.yml`: release question template for "how do I publish X" questions.
+- `.github/PULL_REQUEST_TEMPLATE.md`: PR template with house-format checklist + release-flow checklist + test-evidence requirement.
+- `.github/CONTRIBUTING.md`: contribution guide with ground rules + local dev loop + coding style for scripts.
+- `.github/SECURITY.md`: vulnerability disclosure policy + supported-versions scope.
+- `.github/CODE_OF_CONDUCT.md`: Contributor Covenant 2.0.
+- `.github/FUNDING.yml`: GitHub Sponsor link.
+- `.github/workflows/ci.yml`: 4-job CI (validate-skill, check-readme-links, check-package, check-markdown-toc). Runs on push, PR, and manual dispatch.
+- `assets/social-preview.png` (1280x640, 65 KB): GitHub social preview image. Upload via Settings -> General -> Social preview to maximize click-through when the URL is shared.
+
+## [0.2.1] - 2026-08-28
+
+### Changed
+- Removed duplicate old Install section in both READMEs (was after Feature tour).
+- Marked npm wrapper Roadmap entry as completed in both languages (v0.2.0 npm publication supersedes it).
+
 ## [0.2.0] - 2026-08-28
 
 ### Added

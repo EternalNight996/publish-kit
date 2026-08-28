@@ -425,6 +425,10 @@ publish-kit/
 
 **v0.2.0 (current):** **npm package `@eternalnight/publish-kit`** published to https://registry.npmjs.org/ — 19 files / 51 KB / scoped / MIT / explicit registry / signed. Bundles the skill directory, ships scripts as `bin`, includes `cordis.patch.yml` + `dsh.marketplace` metadata for `dsh plugin` install path. README top-of-page Install + Usage + Supported agents/languages tables. All "not published to npm" notes updated to reflect the publication.
 
+**v0.2.1 (current):** docs cleanup — removed duplicate old Install section in both READMEs; marked npm wrapper Roadmap entry as completed (superseded by v0.2.0 publication).
+
+**v0.3.0 (current):** repo governance — `.github/ISSUE_TEMPLATE/{bug_report,feature_request,release_question}.yml`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/CONTRIBUTING.md`, `.github/SECURITY.md`, `.github/CODE_OF_CONDUCT.md`, `.github/FUNDING.yml`; CI workflow (`.github/workflows/ci.yml`, 4 jobs: validate-skill / check-readme-links / check-package / check-markdown-toc); `assets/social-preview.png` (1280x640).
+
 **Coming soon:**
 - [ ] `release-doctor.mjs` — pre-flight checker that scans a target repo for the 9-row pitfall table in REFERENCE.md J and reports drift before publish
 - [ ] `verify-release.mjs` — post-publish verifier that walks every channel (npm view, gh release, gitee release, awesome-dsh-plugin search, dsh-market issue status, GitHub topics, marketplace catalog) and reports per-channel status
@@ -435,6 +439,8 @@ publish-kit/
 
 ## 📦 Release log
 
+- **v0.3.0** (2026-08-28): repo governance — issue templates (bug/feature/question), PR template, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, FUNDING; CI workflow (4 jobs); social-preview.png (1280x640).
+- **v0.2.1** (2026-08-28): docs cleanup — removed duplicate Install section in both languages; marked npm wrapper Roadmap item as completed.
 - **v0.2.0** (2026-08-28): npm package `@eternalnight/publish-kit` published (51 KB, 19 files, signed); top-of-page Install + Usage + Supported agents/languages tables; README/DSH-DEPLOY/CHANGELOG npm-publication notes synchronized.
 - **v0.1.5** (2026-08-28): `scripts/release-exe.{ps1,sh}` (PyInstaller / Go / Rust / Electron build + checksum + GitHub Release); TEMPLATE.md K section (4 GitHub Actions workflows); EXAMPLES.md Example 3 (Rust CLI transcript); README EN/ZH language toggle.
 - **v0.1.4** (2026-08-28): EN/ZH language toggle buttons at the top of both READMEs.
