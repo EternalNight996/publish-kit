@@ -1,0 +1,50 @@
+name: Feature request
+description: Suggest an addition or improvement to publish-kit
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tell us which release track this request targets, what problem it solves, and how you would test it.
+  - type: dropdown
+    id: track
+    attributes:
+      label: Which release track does this target?
+      options:
+        - All tracks (skill bundle-wide)
+        - npm package
+        - DSH plugin
+        - cargo crate
+        - PyPI / Python
+        - PyInstaller exe
+        - Go / Rust single-binary
+        - Electron / Tauri desktop
+        - Skill bundle discovery / inclusion
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      placeholder: |
+        What's the gap or friction? Quote any reference / spec if relevant.
+      validations:
+        required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      placeholder: |
+        How would the agent / script / template change?
+      validations:
+        required: true
+  - type: textarea
+    id: alt
+    attributes:
+      label: Alternatives considered
+  - type: textarea
+    id: test
+    attributes:
+      label: How would you verify the change works?
+      placeholder: |
+        1. ...
+        2. ...

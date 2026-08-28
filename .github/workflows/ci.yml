@@ -1,0 +1,145 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate-skill:
+    name: Validate skill bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check SKILL.md size
+        run: |
+          lines=$(wc -l < .agents/skills/publish-kit/SKILL.md)
+          echo "SKILL.md lines: $lines"
+          if [ "$lines" -gt 100 ]; then
+            echo "::error::SKILL.md exceeds 100 lines (house format)"
+            exit 1
+          fi
+
+      - name: Verify SKILL.md frontmatter
+        run: |
+          file=.agents/skills/publish-kit/SKILL.md
+          head -n 1 "$file" | grep - -q '^---$' || { echo "::error::missing frontmatter opening"; exit 1; }
+          closing=$(awk '/^---$/{c++} c==2{print NR; exit}' "$file") || { echo "::error::missing frontmatter closing"; exit 1; }
+          if [ -z "$closing" ]; then
+            echo "::error::frontmatter never closed"
+            exit 1
+          fi
+
+          # Extract frontmatter and verify required keys
+          frontmatter=$(awk '/^---$/{c++; next} c==1' "$file")
+          echo "$frontmatter" | grep -q '^name:' || { echo "::error::missing name:"; exit 1; }
+          echo "$frontmatter" | grep -q '^description:' || { echo "::error::missing description:"; exit 1; }
+          echo "$frontmatter" | grep -q 'Use when' || { echo "::error::description missing 'Use when' trigger clause"; exit 1; }
+
+          # name must be kebab-case lowercase
+          name=$(echo "$frontmatter" | grep '^name:' | sed 's/name:\s*//' | tr -d '\r')
+          if echo "$name" | grep -qE '[A-Z]'; then
+            echo "::error::name contains uppercase: $name"
+            exit 1
+          fi
+          if echo "$name" | grep -qE '_'; then
+            echo "::error::name contains underscore (use kebab-case): $name"
+            exit 1
+          fi
+
+          # description must be under 1024 chars
+          desc=$(echo "$frontmatter" | awk '/^description:/{flag=1; sub(/^description:[ ]?/, ""); next} /^[^ ]/ && flag{exit} flag{print}' | tr -d '\r')
+          desc_len=${#desc}
+          if [ "$desc_len" -gt 1024 ]; then
+            echo "::error::description exceeds 1024 chars (got $desc_len)"
+            exit 1
+          fi
+
+          echo "frontmatter OK: name=$name, desc_len=$desc_len"
+
+  check-readme-links:
+    name: Check README internal links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify all internal .md / .png / .svg references resolve
+        run: |
+          # Find all (path/to/file) patterns and check the file exists
+          # Skips http(s) URLs and pure anchors.
+          python3 - << 'EOF'
+          import os, re, sys
+          root = '.'
+          pattern = re.compile(r'\]\((?!https?://|mailto:|#)([^)]+)\)')
+          for readme in ['README.md', 'README.zh.md', '.agents/skills/publish-kit/SKILL.md',
+                          '.agents/skills/publish-kit/REFERENCE.md', '.agents/skills/publish-kit/TEMPLATE.md',
+                          '.agents/skills/publish-kit/INSTALL.md', '.agents/skills/publish-kit/DSH-DEPLOY.md',
+                          '.agents/skills/publish-kit/COMPATIBILITY.md', '.agents/skills/publish-kit/EXAMPLES.md']:
+              path = os.path.join(root, readme)
+              if not os.path.exists(path):
+                  continue
+              base_dir = os.path.dirname(readme)
+              with open(path, encoding='utf-8') as f:
+                  content = f.read()
+              broken = []
+              for m in pattern.finditer(content):
+                  target = m.group(1).split('#')[0]
+                  if not target:
+                      continue
+                  resolved = os.path.normpath(os.path.join(base_dir, target))
+                  if not os.path.exists(resolved):
+                      broken.append(target)
+              if broken:
+                  print(f'::error file={readme}::broken internal links: {broken}', file=sys.stderr)
+                  sys.exit(1)
+          print('all internal links resolve')
+          EOF
+
+  check-package:
+    name: Validate npm package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: https://registry.npmjs.org/
+
+      - name: npm pack --dry-run
+        run: |
+          npm pack --dry-run
+
+      - name: Verify package.json has required fields
+        run: |
+          node -e "
+            const p = require('./package.json');
+            const required = ['name', 'version', 'description', 'license', 'repository', 'publishConfig'];
+            for (const k of required) {
+              if (!p[k]) { console.error('missing ' + k); process.exit(1); }
+            }
+            if (!p.dsh || !p.dsh.marketplace) {
+              console.error('missing dsh.marketplace metadata');
+              process.exit(1);
+            }
+            console.log('package.json OK: ' + p.name + '@' + p.version);
+          "
+
+  check-markdown-toc:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for time-sensitive claims
+        run: |
+          # Hunt for common time-sensitive phrases that may go stale
+          if grep -rEn 'today|currently|right now|as of 20[0-9]{2}' \
+             --include='*.md' \
+             .agents/skills/publish-kit/ \
+             README.md README.zh.md 2>/dev/null; then
+            echo "::warning::time-sensitive claims found; review for staleness"
+          fi

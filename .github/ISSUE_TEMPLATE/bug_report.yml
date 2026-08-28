@@ -1,0 +1,84 @@
+name: Bug report
+description: Report something that is not working as documented
+title: "[bug] "
+labels: ["bug"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. Please fill in the sections below so the maintainers can reproduce and fix it.
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Which agent / host are you running publish-kit on?
+      description: Helps narrow down file-watcher / discovery behavior.
+      options:
+        - DeepSeek Harness (DSH)
+        - Claude Code
+        - Codex CLI
+        - Gemini CLI
+        - Cursor
+        - Windsurf
+        - OpenCode
+        - VS Code Copilot
+        - Other
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install publish-kit?
+      options:
+        - npx skills add <github-url>
+        - npm install -g @eternalnight/publish-kit
+        - dsh plugin --profile web add @eternalnight/publish-kit
+        - manual copy / git clone
+  - type: dropdown
+    id: track
+    attributes:
+      label: Which release track were you on?
+      options:
+        - npm package
+        - DSH plugin (cordis)
+        - cargo crate
+        - PyPI / Python package
+        - PyInstaller exe
+        - Go single-binary
+        - Rust single-binary
+        - Electron / Tauri desktop
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+      validations:
+        required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      validations:
+        required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      validations:
+        required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      placeholder: |
+        - OS: Windows 11 / macOS 14 / Ubuntu 24.04
+        - Node: v22.x
+        - npm: v10.x
+        - publish-kit version: (run `npm ls -g @eternalnight/publish-kit`)
+        - Agent version: (if applicable)
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / error output
+      placeholder: paste console output here, use triple-backticks

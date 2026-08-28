@@ -1,0 +1,35 @@
+name: Release question
+description: Ask how to publish a specific project (npm / cargo / PyPI / exe / etc.)
+title: "[q] "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template when you have a "how do I publish X" question. The maintainers and the agent catalog can both pick this up.
+  - type: dropdown
+    id: track
+    attributes:
+      label: Which release track is your question about?
+      options:
+        - npm package
+        - DSH plugin
+        - cargo / Rust crate
+        - PyPI / Python
+        - PyInstaller exe
+        - Go single-binary
+        - Rust single-binary
+        - Electron / Tauri desktop
+        - Other (please describe)
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      placeholder: |
+        e.g. "How do I publish to both GitHub Releases AND Gitee Releases for a Go binary?"
+      validations:
+        required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Project context (links / setup / current state)
