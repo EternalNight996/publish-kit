@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2026-08-28
+
+### Added
+- `assets/readme-banner.svg` (40 lines): top-of-README visual hook with gradient + accent colors + 6 channel checkmarks + tagline + version stamp. Referenced from both `README.md` and `README.zh.md`.
+- New README sections in both languages:
+  - **Supported languages & packaging ecosystems** — DSH ecosystem (4 tracks) + non-DSH language libraries (npm, cargo, PyPI, PyInstaller exe, Homebrew, Scoop, Chocolatey, Go module, Docker, Maven Central, NuGet, RubyGems) + tracks publish-kit explicitly does NOT cover.
+  - **Skill bundle discovery & inclusion standards** — universal requirements (frontmatter, layout, license), 7-channel inclusion matrix (Vercel CLI, awesome-dsh-plugin, dsh-market, dsh-marketplace, dsh-find-plugin, dsh-plugin-marketplace, dsh-agent-skills), GitHub RP setup, topic taxonomy, social preview, author checklist.
+  - **README & repo home: how to maximize clicks** — repo-home elements (social preview, description, topics, pinned repos, About sidebar), README structure table, asset hygiene (banner, GIF size, raw.githubusercontent cross-host, Mermaid + fallback, result-over-command), SEO & shareability, community signals.
+- `DSH-DEPLOY.md`: extended with a new "Skill bundle inclusion standard (the canonical checklist)" chapter — required file layout, frontmatter contract, repo-level requirements, marketplace-by-marketplace detailed steps (PR/Issue/auto-scan patterns + npm wrapper), topic checklist, disqualifiers, inclusion boosters.
+- New README badge set: Agent Skill bundle, GitHub release, stars, license, DSH-DEPLOY-native, npm opt-in wrapper, cargo crates.io, PyPI/PyInstaller (8 badges total).
+
 ## [0.1.2] - 2026-08-28
 
 ### Changed
