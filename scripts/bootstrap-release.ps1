@@ -1,6 +1,9 @@
 # bootstrap-release.ps1
-# Standard release flow per publish-kit REFERENCE.md section A.
+# Standard npm release flow per publish-kit REFERENCE.md section A.
 # Usage: .\bootstrap-release.ps1 -BumpType patch|minor|major
+#
+# For exe projects (PyInstaller / Go single-binary / Rust single-binary / Electron):
+# see scripts/release-exe.ps1 -ProjectType pyinstaller|go|rust|electron -AppName <name> -Version <v>
 
 [CmdletBinding()]
 param(

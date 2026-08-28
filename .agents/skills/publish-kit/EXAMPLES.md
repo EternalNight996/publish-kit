@@ -102,3 +102,64 @@ gh issue create --repo 2BingLing/dsh-market --title "[提交插件] <pkg>"
 | README GIF not rendering | compress with ffmpeg (REFERENCE.md D6) |
 | Tag pushed to wrong commit | delete with `git tag -d v<x.y.z>`, recreate from resolved hash |
 | .bat echo full-width punctuation parsed as command | switch all punctuation in `.bat` to ASCII |
+
+## Example 3: Rust CLI release (exe matrix via GitHub Actions)
+
+Type: standalone Rust binary distributed via GitHub Releases (no npm, no separate registry).
+
+### Pre-flight
+
+- `Cargo.toml` with `[package].name`, `version`, `description`, `repository`, `license` set.
+- `rustup` installed locally; targets installed via `rustup target add <triple>`.
+- GitHub repo with Actions enabled.
+- No package registry involved: every artifact lands on the GitHub Release page.
+
+### Steps executed (locally + CI)
+
+1. Bump version in `Cargo.toml` (manual edit; commit with version number in message).
+2. Commit + push to trigger CI on the tag.
+3. `git tag -a v1.0.0 <hash>` after verifying.
+4. `git push origin main --tags`.
+5. CI matrix runs in parallel on ubuntu-latest / windows-latest / macos-latest:
+   - ubuntu-latest -> x86_64-unknown-linux-gnu binary
+   - windows-latest -> x86_64-pc-windows-msvc + .exe
+   - macos-latest (x86_64) -> x86_64-apple-darwin
+   - macos-latest (arm64) -> aarch64-apple-darwin
+6. Release job downloads all 4 artifacts, computes `sha256sum **/mycli-* > SHA256SUMS`.
+7. `softprops/action-gh-release@v2` uploads each artifact + the SHA256SUMS file to a GitHub Release with auto-generated notes.
+
+### Local equivalent (without CI)
+
+```bash
+./scripts/release-exe.sh rust mycli 1.0.0 \
+  "x86_64-unknown-linux-gnu,x86_64-pc-windows-msvc,x86_64-apple-darwin,aarch64-apple-darwin"
+# equivalent on Windows:
+# .\scripts\release-exe.ps1 -ProjectType rust -AppName mycli -Version 1.0.0 \
+#   -RustTargets x86_64-unknown-linux-gnu,x86_64-pc-windows-msvc,x86_64-apple-darwin,aarch64-apple-darwin
+```
+
+What the script does, end-to-end:
+1. Resolves repo root from `git rev-parse --show-toplevel`; sanity-checks `gh` is on PATH and `origin` is a GitHub URL.
+2. Removes `./dist` and recreates it.
+3. For each target triple, runs `rustup target add`, `cargo build --release --target <triple>`, then `mv`s the resulting binary into `./dist/mycli-1.0.0-<target>`.
+4. Computes SHA256 of every artifact and writes `./dist/SHA256SUMS`.
+5. `git add -A` + commit + `git tag -a v1.0.0` + `git push origin main --tags`.
+6. `gh release create v1.0.0 --repo <owner>/<repo> --generate-notes` with every artifact + SHA256SUMS attached.
+
+### Pitfalls specific to exe releases
+
+| Symptom | Action |
+| --- | --- |
+| `rustup target add <triple>` fails offline | the GitHub Actions runner has internet, so the matrix step is fine; locally fetch the target ahead of time |
+| Windows code signing fails (`signtool` exit non-zero) | the cert EV pass is required; add `secrets.WINDOWS_CERT_BASE64` + `secrets.WINDOWS_CERT_PASSWORD`; place signtool step before `upload-artifact` |
+| macOS Gatekeeper rejects unsigned binary | add `xcrun notarytool` step; needs Apple Developer ID + `secrets.APPLE_ID` + `secrets.APPLE_PWD` |
+| Release job fails to find artifacts | the upload-artifact `name` must match the download-artifact `path` glob; check the `if-no-files-found` setting on upload-artifact |
+| `gh release create` upload fails with 403 | `GITHUB_TOKEN` needs `contents: write` in the workflow permissions block |
+| Linux glibc version mismatch (binary won't run on older systems) | switch target to `x86_64-unknown-linux-musl` for a static binary |
+| ARM Mac build missing universal binary hint | document in release notes: `aarch64-apple-darwin` is required separately; macOS Universal Binary needs a third lipo step |
+
+### When to use the local script vs CI
+
+- Use **`scripts/release-exe.sh`** for one-off releases, ad-hoc experiments, or when you cannot run Actions.
+- Use **GitHub Actions workflow (K.3)** for reproducible, audited, multi-contributor projects where every release must trace back to a CI run.
+- Both produce the same artifact naming convention (`<app>-<version>-<os>-<arch>` or `<app>-<version>-<target>`), so downstream tooling (brew formulas, scoop manifests, package repos) can consume either path identically.

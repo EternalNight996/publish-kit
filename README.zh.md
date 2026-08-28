@@ -366,6 +366,8 @@ publish-kit/
 
 **v0.1.1（当前）：** 加 EXAMPLES.md 含两个实战 transcript（本发布 + 一个虚构 DSH 插件 npm 流程）。
 
+**v0.1.5（当前）：** 加 `scripts/release-exe.{ps1,sh}`（PyInstaller / Go / Rust / Electron 跨平台 build + checksum + GitHub Release 上传）；TEMPLATE.md K 节含 4 个 GitHub Actions workflow（K.1 PyInstaller / K.2 Go 矩阵 / K.3 Rust 矩阵 / K.4 Electron）；EXAMPLES.md Example 3（Rust CLI 端到端 transcript + 7 行坑位表）；README 中英切换按钮。
+
 **即将推出：**
 - [ ] `release-doctor.mjs` — 起飞前检查器，扫描目标仓库对照 REFERENCE.md J 的 9 行坑位表，发布前报漂移
 - [ ] `verify-release.mjs` — 发布后验证器，走每个渠道（npm view、gh release、gitee release、awesome-dsh-plugin 搜索、dsh-market Issue 状态、GitHub topics、市场目录）并报每渠道状态
@@ -376,6 +378,10 @@ publish-kit/
 
 ## 📦 发布记录
 
+- **v0.1.5** (2026-08-28)：`scripts/release-exe.{ps1,sh}`（PyInstaller / Go / Rust / Electron build + checksum + GitHub Release）；TEMPLATE.md K 节（4 个 GitHub Actions workflow）；EXAMPLES.md Example 3（Rust CLI transcript）；README 中英切换按钮。
+- **v0.1.4** (2026-08-28)：两个 README 顶部加中英切换按钮。
+- **v0.1.3** (2026-08-28)：语言支持矩阵（DSH + 12 个非 DSH 库）；技能包收录矩阵；README 与主页热度优化指南；banner SVG。
+- **v0.1.2** (2026-08-28)：README 按 dsh-memory-eternal 热产品化重写；npm 状态澄清；双语 README.zh.md。
 - **v0.1.1** (2026-08-28)：bootstrap-release 脚本（ps1 + sh）；EXAMPLES.md 实战 transcript；SKILL.md See also 扩展；README 脚本引用。
 - **v0.1.0** (2026-08-28)：首发 bundle——6 文档技能 + 10 模版 + 4 安装路径 + 完整 DSH 部署指南。已给 awesome-dsh-plugin 发 PR #3554（category=skill）；已给 dsh-market 发 Issue #94。
 

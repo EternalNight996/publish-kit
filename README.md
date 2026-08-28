@@ -366,6 +366,8 @@ publish-kit/
 
 **v0.1.1 (current):** added EXAMPLES.md with two worked transcripts (this release + a fictional DSH plugin npm flow).
 
+**v0.1.5 (current):** added `scripts/release-exe.{ps1,sh}` for exe projects (PyInstaller / Go / Rust / Electron cross-platform builds + checksum + GitHub Release upload); TEMPLATE.md K section with 4 GitHub Actions workflows (K.1 PyInstaller / K.2 Go matrix / K.3 Rust matrix / K.4 Electron); EXAMPLES.md Example 3 (Rust CLI end-to-end transcript + 7-row pitfall table); README EN/ZH language toggle buttons.
+
 **Coming soon:**
 - [ ] `release-doctor.mjs` — pre-flight checker that scans a target repo for the 9-row pitfall table in REFERENCE.md J and reports drift before publish
 - [ ] `verify-release.mjs` — post-publish verifier that walks every channel (npm view, gh release, gitee release, awesome-dsh-plugin search, dsh-market issue status, GitHub topics, marketplace catalog) and reports per-channel status
@@ -376,6 +378,10 @@ publish-kit/
 
 ## 📦 Release log
 
+- **v0.1.5** (2026-08-28): `scripts/release-exe.{ps1,sh}` (PyInstaller / Go / Rust / Electron build + checksum + GitHub Release); TEMPLATE.md K section (4 GitHub Actions workflows); EXAMPLES.md Example 3 (Rust CLI transcript); README EN/ZH language toggle.
+- **v0.1.4** (2026-08-28): EN/ZH language toggle buttons at the top of both READMEs.
+- **v0.1.3** (2026-08-28): language support matrix (DSH + 12 non-DSH libraries); skill bundle inclusion matrix; README/homepage attractiveness guide; banner SVG.
+- **v0.1.2** (2026-08-28): README rewritten following dsh-memory-eternal productization pattern; npm status clarified; bilingual README.zh.md.
 - **v0.1.1** (2026-08-28): bootstrap-release scripts (ps1 + sh); EXAMPLES.md worked transcripts; SKILL.md See also extended; README script reference added.
 - **v0.1.0** (2026-08-28): initial bundle — 6-document skill, 10 templates, 4 install paths, full DSH deployment guide. PR #3554 to awesome-dsh-plugin (category=skill); Issue #94 to dsh-market.
 

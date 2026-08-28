@@ -314,3 +314,233 @@ endlocal
 
 Knobs: Anchor user-visible output on os.path.dirname(sys.executable) not __file__ (PyInstaller __file__ points at temp _MEIPASS and gets cleaned up). Smoke-test by launching exe; absence of crash.log is pass signal. .gitignore should exclude build/, dist/, *.spec, *.log.
 
+## K. GitHub Actions workflows for exe projects
+
+For desktop / standalone executables, replace the npm-publish step with a multi-OS build matrix and upload artifacts to a GitHub Release. Companion scripts: `scripts/release-exe.{ps1,sh}` (local equivalent of these workflows).
+
+### K.1 PyInstaller single-file exe (Windows + Linux + macOS)
+
+```yaml
+# .github/workflows/release-exe.yml
+name: release-exe
+on:
+  push:
+    tags: ['v*.*.*']
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pyinstaller
+      - run: pip install -r requirements.txt
+      - name: Build (Windows)
+        if: matrix.os == 'windows-latest'
+        run: pyinstaller --onefile --name myapp --clean app.py
+      - name: Build (Unix)
+        if: matrix.os != 'windows-latest'
+        run: python -m PyInstaller --onefile --name myapp --clean app.py
+      - name: Rename for matrix
+        run: |
+          ext="${{ matrix.os == 'windows-latest' && '.exe' || '' }}"
+          mv dist/myapp$ext dist/myapp-${{ github.ref_name }}-${{ matrix.os }}$ext
+      - uses: actions/upload-artifact@v4
+        with:
+          name: myapp-${{ matrix.os }}
+          path: dist/myapp-*-${{ matrix.os }}*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Generate checksums
+        run: |
+          cd artifacts
+          sha256sum **/myapp-* > SHA256SUMS
+          cat SHA256SUMS
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: artifacts/**/myapp-*, artifacts/SHA256SUMS
+```
+
+Knobs: replace `myapp` and `app.py` with your binary name and entry script. The matrix runs on all 3 OSes in parallel; the release job waits for all to finish, computes sha256, and creates the GitHub Release on tag push.
+
+### K.2 Go cross-compile matrix (no Go runtime needed on each runner)
+
+```yaml
+# .github/workflows/release-exe.yml
+name: release-exe
+on:
+  push:
+    tags: ['v*.*.*']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        goos: [linux, darwin, windows]
+        goarch: [amd64, arm64]
+        exclude:
+          - goos: windows
+            goarch: arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          ext="${{ matrix.goos == 'windows' && '.exe' || '' }}"
+          go build -ldflags="-s -w" -o myapp-${{ github.ref_name }}-${{ matrix.goos }}-${{ matrix.goarch }}$ext
+      - uses: actions/upload-artifact@v4
+        with:
+          name: myapp-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: myapp-*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - run: |
+          cd artifacts
+          sha256sum **/myapp-* > SHA256SUMS
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: artifacts/**/myapp-*, artifacts/SHA256SUMS
+```
+
+Knobs: cross-compile happens entirely on ubuntu-latest (Go toolchain is cross-platform); no need for macOS/Windows runners. For Windows signing, add a `signtool` step before upload (requires `windows-latest` runner + EV cert as secret).
+
+### K.3 Rust cross-compile matrix
+
+```yaml
+# .github/workflows/release-exe.yml
+name: release-exe
+on:
+  push:
+    tags: ['v*.*.*']
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-darwin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+      - name: Package
+        run: |
+          ext="${{ matrix.target == 'x86_64-pc-windows-msvc' && '.exe' || '' }}"
+          mv target/${{ matrix.target }}/release/myapp$ext myapp-${{ github.ref_name }}-${{ matrix.target }}$ext
+      - uses: actions/upload-artifact@v4
+        with:
+          name: myapp-${{ matrix.target }}
+          path: myapp-*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - run: |
+          cd artifacts
+          sha256sum **/myapp-* > SHA256SUMS
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: artifacts/**/myapp-*, artifacts/SHA256SUMS
+```
+
+Knobs: add more `include` entries for additional targets (e.g. `armv7-unknown-linux-gnueabihf` for ARM Linux). For Linux musl (static binary), use `x86_64-unknown-linux-musl`.
+
+### K.4 Electron / Tauri desktop app (electron-builder)
+
+```yaml
+# .github/workflows/release-exe.yml
+name: release-exe
+on:
+  push:
+    tags: ['v*.*.*']
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - name: Build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx --yes electron-builder --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mydesk-${{ matrix.os }}
+          path: dist/*.{exe,dmg,AppImage,zip,deb,rpm}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: artifacts/**/*
+```
+
+Knobs: `GH_TOKEN` env is needed by electron-builder for code signing. For macOS notarization add `xcrun notarytool` step; for Windows EV code signing use `signtool`.
+

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
-# bootstrap-release.sh - Standard release flow per publish-kit REFERENCE.md section A.
+# bootstrap-release.sh - Standard npm release flow per publish-kit REFERENCE.md section A.
 # Usage: ./bootstrap-release.sh patch|minor|major
+#
+# For exe projects (PyInstaller / Go single-binary / Rust single-binary / Electron):
+# see scripts/release-exe.sh <pyinstaller|go|rust|electron> <app> <version>
 
 set -euo pipefail
 cd "$(dirname "$0")"
