@@ -16,6 +16,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DSH-DEPLOY.md`: extended with a new "Skill bundle inclusion standard (the canonical checklist)" chapter — required file layout, frontmatter contract, repo-level requirements, marketplace-by-marketplace detailed steps (PR/Issue/auto-scan patterns + npm wrapper), topic checklist, disqualifiers, inclusion boosters.
 - New README badge set: Agent Skill bundle, GitHub release, stars, license, DSH-DEPLOY-native, npm opt-in wrapper, cargo crates.io, PyPI/PyInstaller (8 badges total).
 
+## [0.4.0] - 2026-08-28
+
+### Added
+- `scripts/release-doctor.mjs` (215 lines): pre-flight checker that walks the REFERENCE.md J 9-row pitfall table against a target repo. 12 checks cover git clean / tag at HEAD / version sync / npm 403 prevention / peer range widths / files whitelist / `dsh.marketplace` metadata / lockfile / README / CHANGELOG / LICENSE / GitHub + Gitee remotes / GitHub description + topics / .bat ASCII-only. Supports `--track={npm,dsh-plugin,cargo,pypi,exe,github-gitee,all}` and `--strict` (WARN treated as FAIL).
+- `scripts/verify-release.mjs` (170 lines): post-publish verifier with 9 channels (npm registry version, GitHub Release exists for tag, Gitee tag exists, GitHub topics, GitHub description, awesome-dsh-plugin yml entry merged, dsh-market submission Issue, GitHub Actions CI pass on tag commit, working tree clean).
+- `scripts/README.md` (85 lines): usage docs for all 4 scripts + recommended local dev loop.
+- `.github/dependabot.yml`: weekly auto-PR for GitHub Actions / npm / Docker dependencies with grouped minor+patch updates.
+- `.github/ISSUE_TEMPLATE/release_question.yml`: new release-question template added to existing bug_report + feature_request.
+- **GitHub Releases**: created `v0.2.0`, `v0.2.1`, `v0.3.0`, `v0.4.0` with auto-generated release notes (latest marker on `v0.4.0`).
+- **Repo settings**: `delete_branch_on_merge=true` (auto-delete PR branches), `allow_update_branch=true` (maintainers can update PRs), `has_discussions=true` (community Q&A enabled).
+- **PR #3554** to `awesome-dsh-plugin`: conflicts resolved, `mergeable=MERGEABLE` (was `CONFLICTING` before rebase).
+
 ## [0.3.0] - 2026-08-28
 
 ### Added

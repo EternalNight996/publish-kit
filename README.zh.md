@@ -432,6 +432,8 @@ publish-kit/
 
 **v0.3.0（当前）：** 仓库治理——`.github/ISSUE_TEMPLATE/{bug_report,feature_request,release_question}.yml`、`.github/PULL_REQUEST_TEMPLATE.md`、`.github/CONTRIBUTING.md`、`.github/SECURITY.md`、`.github/CODE_OF_CONDUCT.md`、`.github/FUNDING.yml`；CI workflow（`.github/workflows/ci.yml`，4 jobs：validate-skill / check-readme-links / check-package / check-markdown-toc）；`assets/social-preview.png`（1280×640）。
 
+**v0.4.0（当前）：** 脚本——`release-doctor.mjs`（12 项起飞前检查：git / npm / DSH 市场 / lockfile / 文档 / 远端 / GH RP / .bat）、`verify-release.mjs`（9 渠道发布后验证器）、`scripts/README.md`（使用文档）；`.github/dependabot.yml`（每周 GitHub Actions + npm + Docker 自动 PR）；仓库设置（`delete_branch_on_merge` + Discussions）；v0.2.0 / v0.2.1 / v0.3.0 / v0.4.0 的 GitHub Releases；PR #3554 冲突解决（现 `MERGEABLE`）。
+
 **即将推出：**
 - [ ] `release-doctor.mjs` — 起飞前检查器，扫描目标仓库对照 REFERENCE.md J 的 9 行坑位表，发布前报漂移
 - [ ] `verify-release.mjs` — 发布后验证器，走每个渠道（npm view、gh release、gitee release、awesome-dsh-plugin 搜索、dsh-market Issue 状态、GitHub topics、市场目录）并报每渠道状态
@@ -442,6 +444,7 @@ publish-kit/
 
 ## 📦 发布记录
 
+- **v0.4.0** (2026-08-28)：`release-doctor.mjs`（12 项起飞前检查）+ `verify-release.mjs`（9 渠道发布后验证器）+ `scripts/README.md`；`.github/dependabot.yml`；仓库设置（`delete_branch_on_merge` + Discussions）；PR #3554 冲突解决。
 - **v0.3.0** (2026-08-28)：仓库治理——issue 模板（bug/feature/question）、PR 模板、CONTRIBUTING、SECURITY、CODE_OF_CONDUCT、FUNDING；CI workflow（4 jobs）；social-preview.png（1280×640）。
 - **v0.2.1** (2026-08-28)：文档清理——删掉双语 README 重复的旧「安装」节；标记 Roadmap npm wrapper 条目为已完成。
 - **v0.2.0** (2026-08-28)：npm 包 `@eternalnight/publish-kit` 发布（51 KB / 19 文件 / 签名）；顶部 Install + Usage + 支持的 agent 与语言表；README/DSH-DEPLOY/CHANGELOG 中 npm 发布标注同步。
