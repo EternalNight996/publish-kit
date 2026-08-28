@@ -391,39 +391,6 @@ The biggest leverage point for a new release is the **first 5 seconds** a visito
 
 publish-kit itself follows every line above; the README you are reading is the example.
 
----
-
-## 🚀 Install (one command)
-
-```bash
-npx skills add https://github.com/EternalNight996/publish-kit
-```
-
-Installs into `~/.agents/skills/` on every host that reads directory-bundle skills (DSH, Claude Code, Codex CLI, Gemini CLI, Cursor). Install only this skill:
-
-```bash
-npx skills add https://github.com/EternalNight996/publish-kit --skill "publish-kit"
-```
-
-Project-scoped (committable):
-
-```bash
-git clone https://github.com/EternalNight996/publish-kit .agents/skills/publish-kit
-```
-
-Manual copy (no `npx` or `git`, e.g. corporate proxies):
-
-```powershell
-# PowerShell
-mkdir $env:USERPROFILE\.agents\skills\publish-kit
-curl -L https://raw.githubusercontent.com/EternalNight996/publish-kit/main/.agents/skills/publish-kit/SKILL.md -o $env:USERPROFILE\.agents\skills\publish-kit\SKILL.md
-# repeat for REFERENCE.md / TEMPLATE.md / INSTALL.md / DSH-DEPLOY.md / COMPATIBILITY.md / EXAMPLES.md
-```
-
-> **Note on npm:** publish-kit is **published to npm** as `@eternalnight/publish-kit`. The npm package bundles the `skills/publish-kit/` directory as an asset, ships the release scripts as `bin` entries, and carries the `dsh.marketplace` metadata so `dsh plugin --profile web add @eternalnight/publish-kit` installs the skill into `~/.agents/skills/` automatically. The two install paths (`npx skills add <github-url>` and `npm install -g @eternalnight/publish-kit`) are equivalent.
-
----
-
 ## 🔧 Bundle layout
 
 ```
@@ -461,7 +428,7 @@ publish-kit/
 **Coming soon:**
 - [ ] `release-doctor.mjs` — pre-flight checker that scans a target repo for the 9-row pitfall table in REFERENCE.md J and reports drift before publish
 - [ ] `verify-release.mjs` — post-publish verifier that walks every channel (npm view, gh release, gitee release, awesome-dsh-plugin search, dsh-market issue status, GitHub topics, marketplace catalog) and reports per-channel status
-- [ ] npm wrapper package (`@eternalnight/publish-kit-plugin`) — ships `skills/publish-kit/` as an asset, hooks a `prepare` script to symlink into `~/.agents/skills/`, exposed via `dsh plugin --profile web add`
+- [x] npm wrapper package (`@eternalnight/publish-kit`) — ships `skills/publish-kit/` as an asset, symlinks into `~/.agents/skills/` via `postinstall`, exposed via `dsh plugin --profile web add` (v0.2.0)
 - [ ] Multi-language templates — add Rust `Cargo.lock` strategy, Python `setup.cfg` legacy path, GitLab CI / Gitea Actions release workflows
 
 ---

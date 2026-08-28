@@ -394,39 +394,6 @@ gh api -X PUT repos/<owner>/<repo>/topics --input topics.json
 
 publish-kit 自身就在执行上面每一条；你正在读的这份 README 就是范例。
 
----
-
-## 🚀 安装（一条命令）
-
-```bash
-npx skills add https://github.com/EternalNight996/publish-kit
-```
-
-装到所有读目录式 skill 的宿主的 `~/.agents/skills/`（DSH、Claude Code、Codex CLI、Gemini CLI、Cursor）。只装这一个技能：
-
-```bash
-npx skills add https://github.com/EternalNight996/publish-kit --skill "publish-kit"
-```
-
-项目级（可提交）：
-
-```bash
-git clone https://github.com/EternalNight996/publish-kit .agents/skills/publish-kit
-```
-
-手动复制（无 npx 或 git，如公司代理）：
-
-```powershell
-# PowerShell
-mkdir $env:USERPROFILE\.agents\skills\publish-kit
-curl -L https://raw.githubusercontent.com/EternalNight996/publish-kit/main/.agents/skills/publish-kit/SKILL.md -o $env:USERPROFILE\.agents\skills\publish-kit\SKILL.md
-# REFERENCE.md / TEMPLATE.md / INSTALL.md / DSH-DEPLOY.md / COMPATIBILITY.md / EXAMPLES.md 同上
-```
-
-> **关于 npm：publish-kit 已发布到 npm 为 `@eternalnight/publish-kit`。** npm 包把 `skills/publish-kit/` 目录打成资产，把 release 脚本作为 `bin` 条目，并带 `dsh.marketplace` 元数据让 `dsh plugin --profile web add @eternalnight/publish-kit` 自动装到 `~/.agents/skills/`。两种安装路径（`npx skills add <github-url>` 与 `npm install -g @eternalnight/publish-kit`）等价。
-
----
-
 ## 🔧 Bundle 结构
 
 ```
@@ -464,7 +431,7 @@ publish-kit/
 **即将推出：**
 - [ ] `release-doctor.mjs` — 起飞前检查器，扫描目标仓库对照 REFERENCE.md J 的 9 行坑位表，发布前报漂移
 - [ ] `verify-release.mjs` — 发布后验证器，走每个渠道（npm view、gh release、gitee release、awesome-dsh-plugin 搜索、dsh-market Issue 状态、GitHub topics、市场目录）并报每渠道状态
-- [ ] npm wrapper 包（`@eternalnight/publish-kit-plugin`）—— 把 `skills/publish-kit/` 打成 npm 资产，`prepare` 钩子链接到 `~/.agents/skills/`，通过 `dsh plugin --profile web add` 安装
+- [x] npm wrapper 包（`@eternalnight/publish-kit`）—— 把 `skills/publish-kit/` 打成 npm 资产，`postinstall` 钩子链接到 `~/.agents/skills/`，通过 `dsh plugin --profile web add` 安装（v0.2.0）
 - [ ] 多语言模版 —— 加 Rust `Cargo.lock` 策略、Python `setup.cfg` 旧路径、GitLab CI / Gitea Actions release workflow
 
 ---
