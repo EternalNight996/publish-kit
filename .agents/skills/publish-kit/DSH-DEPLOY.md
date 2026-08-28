@@ -48,9 +48,9 @@ There is no DSH-specific skill marketplace; distribution follows the same channe
 | dsh-market repo | Issue | yes | title [提交工具] publish-kit 发布工具箱; reference topic agent-skill |
 | dsh-marketplace | auto-scan by topic | none | repo must carry dsh-skill topic (alongside dsh-plugin if it is also installable as a plugin) |
 | dsh-find-plugin | search by topic | none | topic agent-skill |
-| npm (wrapper package) | publish | yes | package wraps skills/publish-kit/ and exposes the directory as an asset; users add it via dsh plugin --profile web add <pkg> and symlink the skill to ~/.agents/skills/publish-kit/ |
+| npm package (`@eternalnight/publish-kit`) | publish | none for the user | `@eternalnight/publish-kit` wraps `.agents/skills/publish-kit/` and exposes it as a tarball asset; `dsh plugin --profile web add @eternalnight/publish-kit` triggers the postinstall symlink into `~/.agents/skills/publish-kit/` |
 
-The optional npm-wrapper pattern is the only path that turns a skill into a DSH plugin; it requires a package.json with dsh.client.platform: "web" and a script that copies the bundled skills/ directory into the user's ~/.agents/skills/.
+The npm-wrapper pattern is the **canonical install path** for users who prefer `dsh plugin --profile web add @eternalnight/publish-kit` over `npx skills add <github-url>`. publish-kit itself uses this pattern: a `package.json` with `dsh.client.platform: "web"` + `dsh.marketplace` metadata, plus a `postinstall.js` that symlinks the bundled skills directory into the user's `~/.agents/skills/`.
 
 ## Topic taxonomy
 
@@ -153,7 +153,7 @@ Rules:
 2. Optionally add `.claude-plugin/marketplace.json` for marketplace indexing.
 3. No further setup; the CLI reads the manifest and writes to `~/.agents/skills/`.
 
-**npm wrapper (optional, for users who prefer `dsh plugin --profile web add`):**
+**npm wrapper (for other skill authors who want `dsh plugin --profile web add <their-skill>`):**
 1. Create an npm package whose `files` includes `skills/<your-skill>/`.
 2. Add `dsh.client.platform: "web"` + `dsh.bundle.patch: "./cordis.patch.yml"` to `package.json`.
 3. Add `scripts.prepublishOnly` that runs a build step to copy the skills directory into a staging location.

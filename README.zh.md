@@ -10,20 +10,21 @@
   <img src="https://img.shields.io/github/stars/EternalNight996/publish-kit?style=flat" alt="GitHub stars" />
   <img src="https://img.shields.io/github/license/EternalNight996/publish-kit" alt="license" />
   <img src="https://img.shields.io/badge/DSH--DEPLOY-native-10B981" alt="DSH-native" />
+  <img src="https://img.shields.io/badge/npm-published-CB3837" alt="npm published" />
   <img src="https://img.shields.io/badge/npm-opt--in--wrapper-CB3837" alt="npm opt-in wrapper" />
   <img src="https://img.shields.io/badge/cargo-crates.io-DEA584" alt="cargo crates.io" />
   <img src="https://img.shields.io/badge/PyPI-PyInstaller-3776AB" alt="PyPI / PyInstaller" />
 </p>
 
-> **一句「发布它」就让每个渠道都对齐。** 这是一个目录式 Agent Skill，把发布动作拆成跨 npm 注册表、GitHub + Gitee 双远端、市场收录、双语 README、git tag 等所有渠道的协调动作——一次发布，全程一致。
-> **使用它本身不需要 npm 发布。** 兼容 DSH / Claude Code / Codex CLI / Gemini CLI / Cursor。
+> **一句「发布它」就让每个渠道都对齐。** 这是一个目录式 Agent Skill + 可 npm 安装的 CLI，把发布动作拆成跨 npm 注册表、GitHub + Gitee 双远端、市场收录、双语 README、git tag 等所有渠道的协调动作——一次发布，全程一致。
+> 兼容 DSH / Claude Code / Codex CLI / Gemini CLI / Cursor。任何 Node / Python / Go / Rust / exe 工程都能跑。
 
 <p align="center">
   <a href="./README.md">English</a> · <strong>简体中文</strong>
 </p>
 
 <p align="center"><strong>⭐ 如果你发过包又曾因「忘了打 tag」而丢了版本，</strong> 给个 Star。
-<br/><sub>一条命令：<code>npx skills add https://github.com/EternalNight996/publish-kit</code></sub></p>
+<br/><sub>安装：<code>npx skills add https://github.com/EternalNight996/publish-kit</code> 或 <code>npm i -g @eternalnight/publish-kit</code></sub></p>
 
 ---
 
@@ -146,9 +147,99 @@ bump 版本 → test → build → commit → npm publish（一次性 `.npmrc.pu
 
 ---
 
-## 🌐 支持的语言与打包生态
+## 🚀 安装
 
-publish-kit **与宿主无关**。核心 SOP 适用于任何跨渠道发布流程；每个轨道的模版覆盖最常见的语言和注册表。当你根本不发 npm 时这个技能也照样好用——每个轨道都是可选的。
+三种安装姿势，都一句话。按你的宿主选：
+
+```bash
+# Skill bundle（任何读 .agents/skills/ 的 agent — DSH、Claude Code、Codex、Gemini、Cursor）
+npx skills add https://github.com/EternalNight996/publish-kit
+
+# npm 包（全局 CLI：bootstrap-release + release-exe 出现在 PATH）
+npm install -g @eternalnight/publish-kit
+
+# DSH 插件（走包的 dsh.marketplace 元数据）
+dsh plugin --profile web add @eternalnight/publish-kit
+```
+
+项目级（可提交）与 `dsh-agent-skills` UI 集成见 [INSTALL.md](./.agents/skills/publish-kit/INSTALL.md)。
+
+---
+
+## 📖 使用方法
+
+### 作为 Agent Skill（模型触发）
+
+加载后，agent 自动响应下面任一提示：
+
+```text
+release this                       cut v0.4.2
+publish my new version             ship it
+bump version and tag               submit to marketplace
+write the README                   slim the npm package
+cargo publish this                 publish to PyPI
+tag this commit                    push to GitHub and Gitee
+build the exe and upload to GitHub Releases
+```
+
+技能把请求分到 8 个轨道之一（npm / DSH 插件 / cargo / PyPI / PyInstaller exe / Go 单二进制 / Rust 单二进制 / Electron 桌面），跑每轨道专属步骤，验证每个渠道对版本号一致后才宣布发布完成。完整流程见 [SKILL.md](./.agents/skills/publish-kit/SKILL.md)。
+
+### 作为 CLI（手动调用）
+
+跑完 `npm install -g @eternalnight/publish-kit`，两个命令可用：
+
+```bash
+# npm 包发布（六步 SOP：bump + publish + tag + push + RP）
+bootstrap-release patch    # 或 minor | major
+
+# exe 发布（PyInstaller / Go / Rust / Electron 跨平台 build + GitHub Release）
+release-exe rust mycli 1.0.0 "x86_64-unknown-linux-gnu,x86_64-pc-windows-msvc,x86_64-apple-darwin"
+```
+
+两个脚本都接受 `-Draft` / `--draft` 标志，先发草稿供 review。
+
+---
+
+## 🤖 支持的 agent 与语言（一眼看完）
+
+### 吃下 publish-kit 的 agent
+
+| Agent | 安装落点 | 状态 |
+| --- | --- | --- |
+| **DeepSeek Harness (DSH)** | `<root>/.agents/skills/publish-kit/`（内置 skill-filesystem）| ✅ 原生 |
+| **Claude Code** | `~/.claude/skills/publish-kit/` | ✅ 原生 |
+| **Codex CLI** | `~/.codex/skills/publish-kit/` | ✅ 原生 |
+| **Gemini CLI** | `~/.gemini/skills/publish-kit/` | ✅ 原生 |
+| **Cursor** | `<root>/.cursor/skills/publish-kit/`（部分构建扫 `.agents/skills/`）| ⚠ best-effort |
+| **Windsurf** | `<root>/.windsurf/skills/` | ⚠ best-effort |
+| **OpenCode** | `~/.config/opencode/skills/` | ✅ 通过 dsh-agent-skills 插件 |
+| **VS Code Copilot** | `.github/copilot-instructions.md`（部分覆盖）| ⚠ 部分 |
+
+### publish-kit 出出模版的语言 / 打包生态
+
+| 语言 / 生态 | 模版 | 注册表 / 商店 |
+| --- | --- | --- |
+| **JavaScript / TypeScript** | TEMPLATE.md A（DSH 插件）+ D（npm）| npmjs.org |
+| **Rust** | TEMPLATE.md H（`Cargo.toml`）+ K.3（GitHub Actions）| crates.io + GitHub Releases |
+| **Python（包）** | TEMPLATE.md I（`pyproject.toml`）| pypi.org + GitHub Releases |
+| **Python（独立 exe）** | TEMPLATE.md J（PyInstaller）+ K.1（GitHub Actions）| GitHub Releases |
+| **Go** | K.2（GitHub Actions 跨编译矩阵）| GitHub Releases |
+| **Electron / Tauri** | K.4（electron-builder）| GitHub Releases |
+| **Homebrew**（macOS）| README 指引 | homebrew-core / 个人 tap |
+| **Scoop**（Windows）| README 指引 | 主 / 个人 bucket |
+| **Chocolatey**（Windows）| README 指引 | chocolatey.org |
+| **Docker** | README 指引 + K 系列 | Docker Hub + GHCR |
+| **Maven Central / JCenter**（Java / Kotlin）| README 指引 | search.maven.org |
+| **NuGet**（.NET）| README 指引 | nuget.org |
+| **RubyGems**（Ruby）| README 指引 | rubygems.org |
+
+每个非 DSH 轨道走同一 SOP：升版本 → test + build → publish → git tag → push tags 到双远端 → 提交市场（若适用）→ RP 字段。
+
+---
+
+## 🌐 详细打包生态表
+
+下面的表展开前文「一眼看完」的内容；每个轨道的落点列说明发布产物走哪个注册表 / 商店。
 
 ### DSH 生态（原生）
 
@@ -332,7 +423,7 @@ curl -L https://raw.githubusercontent.com/EternalNight996/publish-kit/main/.agen
 # REFERENCE.md / TEMPLATE.md / INSTALL.md / DSH-DEPLOY.md / COMPATIBILITY.md / EXAMPLES.md 同上
 ```
 
-> **关于 npm：publish-kit 在 GitHub + Gitee 以 skill bundle 形式发布，**没有上 npm**。** 想给 DSH 用户一个 `dsh plugin --profile web add publish-kit` 路径的，可选 npm wrapper 模式（见 `DSH-DEPLOY.md` 与 `TEMPLATE.md` A 节）——bundle 里没有任何代码假设这种存在。
+> **关于 npm：publish-kit 已发布到 npm 为 `@eternalnight/publish-kit`。** npm 包把 `skills/publish-kit/` 目录打成资产，把 release 脚本作为 `bin` 条目，并带 `dsh.marketplace` 元数据让 `dsh plugin --profile web add @eternalnight/publish-kit` 自动装到 `~/.agents/skills/`。两种安装路径（`npx skills add <github-url>` 与 `npm install -g @eternalnight/publish-kit`）等价。
 
 ---
 
@@ -368,6 +459,8 @@ publish-kit/
 
 **v0.1.5（当前）：** 加 `scripts/release-exe.{ps1,sh}`（PyInstaller / Go / Rust / Electron 跨平台 build + checksum + GitHub Release 上传）；TEMPLATE.md K 节含 4 个 GitHub Actions workflow（K.1 PyInstaller / K.2 Go 矩阵 / K.3 Rust 矩阵 / K.4 Electron）；EXAMPLES.md Example 3（Rust CLI 端到端 transcript + 7 行坑位表）；README 中英切换按钮。
 
+**v0.2.0（当前）：** **npm 包 `@eternalnight/publish-kit`** 已发布到 https://registry.npmjs.org/——19 文件 / 51 KB / scoped / MIT / 显式 registry / 签名。把 skill 目录打成 tarball 资产，脚本作为 `bin` 条目，含 `cordis.patch.yml` + `dsh.marketplace` 元数据支持 `dsh plugin` 安装路径。README 顶部 Install + Usage + 支持的 agent 与语言表。所有「未发布 npm」标注同步更新。
+
 **即将推出：**
 - [ ] `release-doctor.mjs` — 起飞前检查器，扫描目标仓库对照 REFERENCE.md J 的 9 行坑位表，发布前报漂移
 - [ ] `verify-release.mjs` — 发布后验证器，走每个渠道（npm view、gh release、gitee release、awesome-dsh-plugin 搜索、dsh-market Issue 状态、GitHub topics、市场目录）并报每渠道状态
@@ -378,6 +471,7 @@ publish-kit/
 
 ## 📦 发布记录
 
+- **v0.2.0** (2026-08-28)：npm 包 `@eternalnight/publish-kit` 发布（51 KB / 19 文件 / 签名）；顶部 Install + Usage + 支持的 agent 与语言表；README/DSH-DEPLOY/CHANGELOG 中 npm 发布标注同步。
 - **v0.1.5** (2026-08-28)：`scripts/release-exe.{ps1,sh}`（PyInstaller / Go / Rust / Electron build + checksum + GitHub Release）；TEMPLATE.md K 节（4 个 GitHub Actions workflow）；EXAMPLES.md Example 3（Rust CLI transcript）；README 中英切换按钮。
 - **v0.1.4** (2026-08-28)：两个 README 顶部加中英切换按钮。
 - **v0.1.3** (2026-08-28)：语言支持矩阵（DSH + 12 个非 DSH 库）；技能包收录矩阵；README 与主页热度优化指南；banner SVG。

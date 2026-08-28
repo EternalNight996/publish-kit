@@ -1,0 +1,20 @@
+client:
+  # publish-kit does not ship a runtime client (it is a skill bundle + CLI).
+  # The presence of this patch file is what dsh-plugin-marketplace reads to
+  # include the package in the DSH plugin catalog. No injection or routing is
+  # performed at runtime; the bundle is consumed via dsh-skill-filesystem
+  # scanning the .agents/skills/publish-kit/ directory bundled in this tarball.
+  platform: web
+  inject: []
+  # Marker so the validator recognizes the package as a DSH-distributable
+  # skill bundle (it still works on non-DSH hosts via the bin entries).
+metadata:
+  kind: skill-wrapper
+  bundlesSkillDirectory: true
+  installPaths: ['~/.agents/skills/publish-kit/', '~/.claude/skills/publish-kit/', '~/.codex/skills/publish-kit/']
+  notes: |
+    When installed via `dsh plugin --profile web add @eternalnight/publish-kit`,
+    the postinstall hook symlinks the bundled .agents/skills/publish-kit/
+    directory into the active profile's skill root, making the skill
+    immediately discoverable by DSH's skill-filesystem provider without
+    requiring a host restart.

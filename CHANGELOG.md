@@ -16,6 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DSH-DEPLOY.md`: extended with a new "Skill bundle inclusion standard (the canonical checklist)" chapter — required file layout, frontmatter contract, repo-level requirements, marketplace-by-marketplace detailed steps (PR/Issue/auto-scan patterns + npm wrapper), topic checklist, disqualifiers, inclusion boosters.
 - New README badge set: Agent Skill bundle, GitHub release, stars, license, DSH-DEPLOY-native, npm opt-in wrapper, cargo crates.io, PyPI/PyInstaller (8 badges total).
 
+## [0.2.0] - 2026-08-28
+
+### Added
+- **npm package: `@eternalnight/publish-kit`** published at https://registry.npmjs.org/. Bundles `.agents/skills/publish-kit/` as a tarball asset, ships `bootstrap-release.{ps1,sh}` and `release-exe.{ps1,sh}` as `bin` entries, and includes `cordis.patch.yml` + `dsh.marketplace` metadata so `dsh plugin --profile web add @eternalnight/publish-kit` installs the skill into `~/.agents/skills/` via a postinstall symlink.
+- `package.json`: scoped package (`@eternalnight/`), MIT, explicit registry (`https://registry.npmjs.org/`), 19-file tarball (51 KB).
+- `cordis.patch.yml`: marker file declaring the package as a skill-wrapper; consumed by `dsh-plugin-marketplace` static validator.
+- `scripts/postinstall.js`: auto-symlinks the bundled skill into `~/.agents/skills/`, `~/.claude/skills/`, `~/.codex/skills/`, `~/.gemini/skills/`, `~/.dsh/skills/` on install.
+- README: top-of-page **Install** (3 commands: skill bundle / npm / DSH plugin) and **Usage** (model-invoked prompts + CLI examples) sections.
+- README: top-of-page **Supported agents & languages** tables (8 agents, 13 languages/ecosystems).
+- README badges: replaced `npm-opt-in-wrapper` with `npm-published`.
+
+### Changed
+- All references to "not published to npm" updated to reflect the v0.2.0 npm publication. The npm wrapper is no longer opt-in — it is the canonical install path for users who prefer `dsh plugin add` or `npm install -g`.
+
 ## [0.1.2] - 2026-08-28
 
 ### Changed

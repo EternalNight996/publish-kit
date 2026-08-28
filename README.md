@@ -10,24 +10,112 @@
   <img src="https://img.shields.io/github/stars/EternalNight996/publish-kit?style=flat" alt="GitHub stars" />
   <img src="https://img.shields.io/github/license/EternalNight996/publish-kit" alt="license" />
   <img src="https://img.shields.io/badge/DSH--DEPLOY-native-10B981" alt="DSH-native" />
-  <img src="https://img.shields.io/badge/npm-opt--in--wrapper-CB3837" alt="npm opt-in wrapper" />
+  <img src="https://img.shields.io/badge/npm-published-CB3837" alt="npm published" />
   <img src="https://img.shields.io/badge/cargo-crates.io-DEA584" alt="cargo crates.io" />
   <img src="https://img.shields.io/badge/PyPI-PyInstaller-3776AB" alt="PyPI / PyInstaller" />
 </p>
 
-> **One release prompt, every channel aligned.** A directory-bundle Agent Skill that turns "release this" into a coordinated publish across npm registries, GitHub + Gitee remotes, marketplace listings, repo RP fields, bilingual README, and git tags — all in lockstep.
-> Zero npm publish required to use it. Works on DSH, Claude Code, Codex CLI, Gemini CLI, Cursor.
+> **One release prompt, every channel aligned.** A directory-bundle Agent Skill + npm-installable CLI that turns "release this" into a coordinated publish across npm registries, GitHub + Gitee remotes, marketplace listings, repo RP fields, bilingual README, and git tags — all in lockstep.
+> Works on DSH, Claude Code, Codex CLI, Gemini CLI, Cursor. Runs anywhere Node, Python, Rust, Go, or any exe target lives.
 
 <p align="center">
   <strong>English</strong> · <a href="./README.zh.md">简体中文</a>
 </p>
 
 <p align="center"><strong>⭐ If you ship software and have ever lost a version to "I forgot to tag it,"</strong> give it a Star.
-<br/><sub>One command: <code>npx skills add https://github.com/EternalNight996/publish-kit</code></sub></p>
+<br/><sub>Install: <code>npx skills add https://github.com/EternalNight996/publish-kit</code> or <code>npm i -g @eternalnight/publish-kit</code></sub></p>
 
 ---
 
-## 🔥 The pain: a release touches every silo, and any one slipping breaks the chain
+## 🚀 Install
+
+Three install paths, all one command. Pick the one that matches your host.:
+
+```bash
+# Skill bundle (any agent that reads .agents/skills/ — DSH, Claude Code, Codex, Gemini, Cursor)
+npx skills add https://github.com/EternalNight996/publish-kit
+
+# npm package (global CLI: bootstrap-release + release-exe available on PATH)
+npm install -g @eternalnight/publish-kit
+
+# DSH plugin via npm wrapper (uses the package's dsh.marketplace metadata)
+dsh plugin --profile web add @eternalnight/publish-kit
+```
+
+For project-scoped (committable) installs and `dsh-agent-skills` UI integration, see [INSTALL.md](./.agents/skills/publish-kit/INSTALL.md).
+
+---
+
+## 📖 Usage
+
+### As an Agent Skill (model-invoked)
+
+Once loaded, the agent responds to any of these prompts automatically:
+
+```text
+release this                       cut v0.4.2
+publish my new version             ship it
+bump version and tag               submit to marketplace
+write the README                   slim the npm package
+cargo publish this                 publish to PyPI
+tag this commit                    push to GitHub and Gitee
+build the exe and upload to GitHub Releases
+```
+
+The skill classifies the request into one of 8 release tracks (npm / DSH plugin / cargo / PyPI / PyInstaller exe / Go binary / Rust binary / Electron desktop), runs the per-track steps, and verifies every channel agrees on the version before declaring the release done. Full workflow in [SKILL.md](./.agents/skills/publish-kit/SKILL.md).
+
+### As a CLI (manual invocation)
+
+After `npm install -g @eternalnight/publish-kit`, two commands are available:
+
+```bash
+# npm package release (six-step SOP: bump + publish + tag + push + RP)
+bootstrap-release patch    # or minor | major
+
+# exe release (PyInstaller / Go / Rust / Electron cross-platform build + GitHub Release)
+release-exe rust mycli 1.0.0 "x86_64-unknown-linux-gnu,x86_64-pc-windows-msvc,x86_64-apple-darwin"
+```
+
+Both scripts take an optional `-Draft` / `--draft` flag to publish a draft release for review first.
+
+---
+
+## 🤖 Supported agents & languages (at a glance)
+
+### Agents that consume publish-kit
+
+| Agent | How install lands | Status |
+| --- | --- | --- |
+| **DeepSeek Harness (DSH)** | `<root>/.agents/skills/publish-kit/` (built-in skill-filesystem) | ✅ native |
+| **Claude Code** | `~/.claude/skills/publish-kit/` | ✅ native |
+| **Codex CLI** | `~/.codex/skills/publish-kit/` | ✅ native |
+| **Gemini CLI** | `~/.gemini/skills/publish-kit/` | ✅ native |
+| **Cursor** | `<root>/.cursor/skills/publish-kit/` (partial; some builds scan `.agents/skills/`) | ⚠ best-effort |
+| **Windsurf** | `<root>/.windsurf/skills/` | ⚠ best-effort |
+| **OpenCode** | `~/.config/opencode/skills/` | ✅ via dsh-agent-skills plugin |
+| **VS Code Copilot** | `.github/copilot-instructions.md` (partial coverage) | ⚠ partial |
+
+### Programming languages & package ecosystems publish-kit ships templates for
+
+| Language / ecosystem | Template | Registry / store |
+| --- | --- | --- |
+| **JavaScript / TypeScript** | TEMPLATE.md A (DSH plugin) + D (npm) | npmjs.org |
+| **Rust** | TEMPLATE.md H (`Cargo.toml`) + K.3 (GitHub Actions) | crates.io + GitHub Releases |
+| **Python (package)** | TEMPLATE.md I (`pyproject.toml`) | pypi.org + GitHub Releases |
+| **Python (standalone exe)** | TEMPLATE.md J (PyInstaller) + K.1 (GitHub Actions) | GitHub Releases |
+| **Go** | K.2 (GitHub Actions cross-compile matrix) | GitHub Releases |
+| **Electron / Tauri** | K.4 (electron-builder) | GitHub Releases |
+| **Homebrew** (macOS) | README instructions | homebrew-core / personal tap |
+| **Scoop** (Windows) | README instructions | main / personal bucket |
+| **Chocolatey** (Windows) | README instructions | chocolatey.org |
+| **Docker** | README instructions + K series | Docker Hub + GHCR |
+| **Maven Central / JCenter** (Java / Kotlin) | README instructions | search.maven.org |
+| **NuGet** (.NET) | README instructions | nuget.org |
+| **RubyGems** (Ruby) | README instructions | rubygems.org |
+
+Every non-DSH track follows the same SOP: bump version → tests + build → publish → git tag → push tags to both remotes → marketplace submission (where applicable) → RP fields.
+
+---
 
 | # | Pain (everyone who ships hits these) | What it costs |
 |---|---|---|
@@ -146,9 +234,9 @@ Bump version → test → build → commit → npm publish (with throwaway `.npm
 
 ---
 
-## 🌐 Supported languages & packaging ecosystems
+## 🌐 Detailed packaging ecosystem table
 
-publish-kit is **host-agnostic**. Its core SOP applies to any release flow that touches multiple channels; the per-track templates ship for the languages and registries that come up most often. The skill stays equally useful when you ship nothing to npm — every track is opt-in.
+The tables below expand on the "at a glance" view above; each track's "where it lives" column names the registry or store the release lands in.
 
 ### DSH ecosystem (native)
 
@@ -332,7 +420,7 @@ curl -L https://raw.githubusercontent.com/EternalNight996/publish-kit/main/.agen
 # repeat for REFERENCE.md / TEMPLATE.md / INSTALL.md / DSH-DEPLOY.md / COMPATIBILITY.md / EXAMPLES.md
 ```
 
-> **Note on npm:** publish-kit ships at GitHub + Gitee as a skill bundle; it is **not published to npm**. The npm wrapper pattern (for users who want `dsh plugin --profile web add publish-kit`) is documented in `DSH-DEPLOY.md` and `TEMPLATE.md` section A as an opt-in — no code in the bundle assumes it.
+> **Note on npm:** publish-kit is **published to npm** as `@eternalnight/publish-kit`. The npm package bundles the `skills/publish-kit/` directory as an asset, ships the release scripts as `bin` entries, and carries the `dsh.marketplace` metadata so `dsh plugin --profile web add @eternalnight/publish-kit` installs the skill into `~/.agents/skills/` automatically. The two install paths (`npx skills add <github-url>` and `npm install -g @eternalnight/publish-kit`) are equivalent.
 
 ---
 
@@ -368,6 +456,8 @@ publish-kit/
 
 **v0.1.5 (current):** added `scripts/release-exe.{ps1,sh}` for exe projects (PyInstaller / Go / Rust / Electron cross-platform builds + checksum + GitHub Release upload); TEMPLATE.md K section with 4 GitHub Actions workflows (K.1 PyInstaller / K.2 Go matrix / K.3 Rust matrix / K.4 Electron); EXAMPLES.md Example 3 (Rust CLI end-to-end transcript + 7-row pitfall table); README EN/ZH language toggle buttons.
 
+**v0.2.0 (current):** **npm package `@eternalnight/publish-kit`** published to https://registry.npmjs.org/ — 19 files / 51 KB / scoped / MIT / explicit registry / signed. Bundles the skill directory, ships scripts as `bin`, includes `cordis.patch.yml` + `dsh.marketplace` metadata for `dsh plugin` install path. README top-of-page Install + Usage + Supported agents/languages tables. All "not published to npm" notes updated to reflect the publication.
+
 **Coming soon:**
 - [ ] `release-doctor.mjs` — pre-flight checker that scans a target repo for the 9-row pitfall table in REFERENCE.md J and reports drift before publish
 - [ ] `verify-release.mjs` — post-publish verifier that walks every channel (npm view, gh release, gitee release, awesome-dsh-plugin search, dsh-market issue status, GitHub topics, marketplace catalog) and reports per-channel status
@@ -378,6 +468,7 @@ publish-kit/
 
 ## 📦 Release log
 
+- **v0.2.0** (2026-08-28): npm package `@eternalnight/publish-kit` published (51 KB, 19 files, signed); top-of-page Install + Usage + Supported agents/languages tables; README/DSH-DEPLOY/CHANGELOG npm-publication notes synchronized.
 - **v0.1.5** (2026-08-28): `scripts/release-exe.{ps1,sh}` (PyInstaller / Go / Rust / Electron build + checksum + GitHub Release); TEMPLATE.md K section (4 GitHub Actions workflows); EXAMPLES.md Example 3 (Rust CLI transcript); README EN/ZH language toggle.
 - **v0.1.4** (2026-08-28): EN/ZH language toggle buttons at the top of both READMEs.
 - **v0.1.3** (2026-08-28): language support matrix (DSH + 12 non-DSH libraries); skill bundle inclusion matrix; README/homepage attractiveness guide; banner SVG.
