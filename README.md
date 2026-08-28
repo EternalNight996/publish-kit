@@ -1,127 +1,243 @@
-<p align="center">
-  <img src="assets/readme-banner.svg" alt="Publish Kit — release across every channel without leaving any out" width="100%" />
-</p>
-
-<h1 align="center">Publish Kit</h1>
+# 🚀 publish-kit — Release Playbook for AI Agents
 
 <p align="center">
-  <em>The Release Playbook for AI Agents</em>
+  <img src="https://img.shields.io/badge/Agent%20Skill-bundle-3B82F6" alt="Agent Skill bundle" />
+  <img src="https://img.shields.io/github/v/release/EternalNight996/publish-kit" alt="GitHub release" />
+  <img src="https://img.shields.io/github/stars/EternalNight996/publish-kit?style=flat" alt="GitHub stars" />
+  <img src="https://img.shields.io/github/license/EternalNight996/publish-kit" alt="license" />
+  <img src="https://img.shields.io/badge/DSH--DEPLOY-native-10B981" alt="DSH-native" />
 </p>
 
-<p align="center">
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" height="28"/></a>
-  &nbsp;
-  <a href="https://github.com/vercel-labs/agent-skills"><img src="https://img.shields.io/badge/agent%20skills-compatible-4f46e5" alt="Agent Skills compatible" height="28"/></a>
-  &nbsp;
-  <a href="./CHANGELOG.md"><img src="https://img.shields.io/badge/changelog-keep%20a%20changelog-orange" alt="Changelog" height="28"/></a>
-</p>
+> **One release prompt, every channel aligned.** A directory-bundle Agent Skill that turns "release this" into a coordinated publish across npm registries, GitHub + Gitee remotes, marketplace listings, repo RP fields, bilingual README, and git tags — all in lockstep.
+> Zero npm publish required to use it. Works on DSH, Claude Code, Codex CLI, Gemini CLI, Cursor.
 
-<p align="center"><sub><a href="#install">Install</a> · <a href="#what-it-covers">What it covers</a> · <a href="#templates">Templates</a> · <a href="#deploy">Deploy</a> · <a href="#compatibility">Compatibility</a> · <a href="#faq">FAQ</a> · <a href="#license">License</a></sub></p>
+<p align="center"><strong>⭐ If you ship software and have ever lost a version to "I forgot to tag it,"</strong> give it a Star.
+<br/><sub>One command: <code>npx skills add https://github.com/EternalNight996/publish-kit</code></sub></p>
 
-## What it is
+---
 
-A directory-bundle **Agent Skill** that turns a one-line "release this" prompt into a coordinated publish across every channel that matters: package registry (npm / crates.io / PyPI), git remotes (GitHub + Gitee), marketplace listings (DSH + Anthropic + Codex), repo RP fields, bilingual README, and git tags. One release leaves every silo in agreement, so you never ship a v0.4.27 with no tag and a stale changelog again.
+## 🔥 The pain: a release touches every silo, and any one slipping breaks the chain
 
-## Why
+| # | Pain (everyone who ships hits these) | What it costs |
+|---|---|---|
+| 1 | **Forgot the git tag** | npm knows v0.4.27 but git has no anchor; `git checkout v<x.y.z>` returns 404; release history becomes guesswork from commit messages |
+| 2 | **Changed code, forgot to bump version** | `npm publish` returns 403 (cannot publish over); for DSH plugins the marketplace validator silently rejects; changelog drifts behind reality |
+| 3 | **Pushed to GitHub only, forgot Gitee** | half your users see a broken README image, the other half get "404 not found" on the install command |
+| 4 | **Shipped to one marketplace, missed the other three** | the DSH ecosystem has 4+ marketplaces (awesome-dsh-plugin, dsh-market, dsh-marketplace, dsh-plugin-marketplace); publishing to one and not the others means 75% of potential users never see your work |
+| 5 | **Wrote the token into `.npmrc` and committed it** | one careless `git add -A` and your npm publish token is on a public GitHub forever — every bot in the world knows it within minutes |
 
-Every channel is an independent silo. npm knows a version, git knows a commit, marketplaces scan topics: skipping one step leaves them disagreeing, and backfilling later is error-prone. publish-kit hardcodes the SOP + 10 copy-paste templates so the agent handles the bookkeeping, not you.
+> This is not paranoia; every one of these happened in real releases documented in `EXAMPLES.md`.
 
-## Install
+---
+
+## 🚀 After loading the skill: each pain solved with one prompt
+
+| Pain | After publish-kit handles it | How |
+|---|---|---|
+| ① Forgot the tag | every release creates `v<x.y.z>` anchored to the version-bump commit, verified before push | `git show v<x.y.z> --format=%s` gate before `--tags` |
+| ② 403 on republish | version bump is the first step in every SOP; `npm view <pkg> version` checked before publishing | script enforces it (see `scripts/bootstrap-release.{ps1,sh}`) |
+| ③ Gitee drift | one-liner dual-remote push with SSH; force-reset stale remote URLs | `publish.bat` template + bash equivalent |
+| ④ Missed marketplaces | pre-flight checklist covers all 4 DSH channels (PR + Issue + topic + metadata) | REFERENCE.md section B matrix + TEMPLATE.md A-C |
+| ⑤ Leaked token | throwaway `.npmrc.publish` is deleted in the same script's `finally` | token never lives longer than one command |
+
+```mermaid
+flowchart LR
+  A["User says:<br/>'release this'"] --> B{"Classify release track"}
+  B -- "npm package<br/>(incl. DSH plugin)" --> C["npm SOP:<br/>bump → test → build → publish → tag → push tags → RP"]
+  B -- "cargo / PyPI" --> D["Standard registry flow<br/>(REFERENCE.md H / I)"]
+  B -- "Git-only project" --> E["git tag SOP:<br/>resolve hash from git log,<br/>verify subject, push both remotes"]
+  B -- "exe artifact" --> F["PyInstaller:<br/>anchor on sys.executable,<br/>smoke-test no crash.log"]
+  C & D & E & F --> G["Verify every channel<br/>agrees on version"]
+  G -- "PASS" --> H["Submit to marketplaces:<br/>awesome PR + dsh-market Issue"]
+  G -- "FAIL" --> X["❌ Block + report<br/>missing channel"]
+```
+
+---
+
+## 🧬 Core design: why a Skill bundle, not an npm package
+
+The publish-kit skill is **not** a cordis plugin and **not** an npm runtime dependency. It is a directory of dense facts + copy-paste templates that the agent consults when you ask it to release something. Three design decisions follow from that:
+
+| Decision | What | Why |
+|---|---|---|
+| **No npm publish required** | the skill ships at GitHub + Gitee; install is `npx skills add <url>` | matches every host that reads directory-bundle skills (DSH, Claude Code, Codex, Gemini) without forcing a registry dependency |
+| **Templated, not opinionated** | ten copy-paste templates, one per release track (DSH plugin, awesome yml, dsh-market Issue, publish.bat, bilingual README, PUBLISH.md, GitHub Actions, Cargo.toml, pyproject.toml, PyInstaller) | each template is annotated with "when to use" + "knobs to inspect"; no single track dominates |
+| **Honest about source** | sections A-G and J come from 11 hands-on release memory cards (npm, DSH plugins, GitHub/Gitee, PyInstaller); sections H-I (cargo, PyPI) state the standard registry flow without claiming local battle-testing | you know which advice is hard-won vs baseline |
+
+> **publish-kit complements rather than competes with the release tooling the agent already knows.** It encodes specific release traps (`npm pack --dry-run` for files whitelist, `git show` for tag verification, full-width punctuation in `.bat`, the `_MEIPASS` PyInstaller path) that generic release helpers skip.
+
+| Existing tooling | What it covers | Where publish-kit fills in |
+|---|---|---|
+| `dev-agent-skills` (fvadicamo) | git/GitHub workflow + skill authoring | release-specific knowledge: marketplace matrix, slimming, semver traps |
+| `pr-workflow` (ALSEL) | PR review + merge workflow | the publish step *after* PR merge: tag, both remotes, marketplace, RP fields |
+| `skill-multi-publisher` (LobeHub) | publishing skill *files* to a marketplace | release knowledge for the package/plugin *the skill describes*, not the skill itself |
+| `commit-history` / `commit-context` (DSH) | tracing which session wrote which commit | nothing about the release boundary (tag, version, marketplace) |
+
+> If you already use any of the above, publish-kit adds the layer they skip — the **release boundary** itself.
+
+---
+
+## ✨ Feature tour
+
+<details>
+<summary><b>📦 SKILL.md (under 100 lines, model-invoked)</b></summary>
+
+- Frontmatter `name` + `description` carrying the concrete trigger branches (publish, release, deploy, ship, bump version, cut tag, write README, slim npm package, cargo publish, PyPI, PyInstaller, GitHub Releases, marketplace submission).
+- Quick start, workflow, anti-patterns, checklist, See also — the agent reads this first when the trigger fires.
+
+</details>
+
+<details>
+<summary><b>📚 REFERENCE.md (dense facts, sections A-J)</b></summary>
+
+- **A. npm release SOP** — version bump → test → publish → tag → push → RP, with registry, token, scope, files whitelist, peer-dependency traps.
+- **B. DSH plugin marketplace matrix** — 4 channels (awesome-dsh-plugin, dsh-market, dsh-marketplace, dsh-plugin-marketplace) with mechanism + manual step + checkpoint.
+- **C. npm details** — peerDependencies semver, pnpm workspace, npx version lock, host restart semantics.
+- **D. npm slimming** — files whitelist vs .gitignore; showcase media via raw.githubusercontent; runtime assets keep in the tarball; ffmpeg GIF compression.
+- **E. git tag SOP** — resolve hash from `git log`, verify subject, push; never guess with `commit~N`.
+- **F. Bilingual README** — file split, badge row, GIF under 10 MB.
+- **G. Dual-remote GitHub + Gitee** — SSH, one-shot `publish.bat`, full-width punctuation trap.
+- **H. cargo / crates.io** — standard flow (honestly noted: not yet battle-tested locally).
+- **I. PyPI / PyInstaller** — `_MEIPASS` path trap, `base_library.zip` stale-cache trap, ASCII-punctuation bat trap.
+- **J. Pitfall quick table** — 9-row symptom → fix reference.
+
+</details>
+
+<details>
+<summary><b>📝 TEMPLATE.md (10 copy-paste skeletons)</b></summary>
+
+Every template is annotated with **when to use** + **knobs to inspect before publishing**. Tracks covered: DSH plugin `package.json`, awesome-dsh-plugin yml entry, dsh-market Issue body, dual-remote `publish.bat`, bilingual README skeleton, git-install `PUBLISH.md`, GitHub Actions release workflow, `Cargo.toml`, `pyproject.toml`, PyInstaller build script.
+
+</details>
+
+<details>
+<summary><b>🔧 scripts/bootstrap-release.{ps1,sh}</b></summary>
+
+Six-step automation that runs the entire SOP end-to-end:
+
+```bash
+./scripts/bootstrap-release.sh patch    # or minor / major
+```
+
+Bump version → test → build → commit → npm publish (with throwaway `.npmrc.publish` deleted in `finally`) → tag + push both remotes → GitHub RP fields. Pass `patch`, `minor`, or `major` as the argument.
+
+</details>
+
+<details>
+<summary><b>📥 INSTALL.md / DSH-DEPLOY.md / COMPATIBILITY.md / EXAMPLES.md</b></summary>
+
+- **INSTALL.md** — 4 install paths (Vercel `npx skills add`, DSH native, `dsh-agent-skills` mirror, manual curl).
+- **DSH-DEPLOY.md** — DSH-specific: six discovery roots, watch semantics, rank ordering, distribution channels, topic taxonomy.
+- **COMPATIBILITY.md** — platform matrix for DSH / Claude Code / Codex / Gemini / Cursor / Windsurf / Copilot, frontmatter field support, body-format limits.
+- **EXAMPLES.md** — worked transcripts: this skill's own v0.1.0 release (18 steps) + full DSH plugin npm flow + 7-row pitfall reference.
+
+</details>
+
+---
+
+## 🚀 Install (one command)
 
 ```bash
 npx skills add https://github.com/EternalNight996/publish-kit
 ```
 
-Installs into `~/.agents/skills/` on every host that consumes the directory-bundle format (DSH, Claude Code, Codex CLI, Gemini CLI, Cursor). Single-skill install:
+Installs into `~/.agents/skills/` on every host that reads directory-bundle skills (DSH, Claude Code, Codex CLI, Gemini CLI, Cursor). Install only this skill:
 
 ```bash
 npx skills add https://github.com/EternalNight996/publish-kit --skill "publish-kit"
 ```
 
-Other install paths (manual copy, project-scoped, host-specific managers like `dsh-agent-skills`) are documented in [`.agents/skills/publish-kit/INSTALL.md`](./.agents/skills/publish-kit/INSTALL.md).
+Project-scoped (committable):
 
-## What it covers
+```bash
+git clone https://github.com/EternalNight996/publish-kit .agents/skills/publish-kit
+```
 
-- **npm release SOP** — version bump → test → publish → tag → push → RP fields, with the registry, token, scope, files-whitelist, and peer-dependency traps.
-- **DSH plugin marketplace** — full matrix for the four DSH marketplaces (auto topic-scan, awesome PR, dsh-market Issue, dsh-plugin-marketplace static validator) plus the `dsh.marketplace` metadata schema.
-- **npm slimming** — separate runtime assets from showcase media so the tarball drops from 10 MB to ~50 KB without breaking README rendering (DSH `assets/screen` distinction preserved).
-- **git tag SOP** — the workflow that fixes the "40 versions with zero tags" mistake: resolve hash from `git log`, verify subject, push; never guess with `commit~N`.
-- **Bilingual README** — zh/en file split, badge row, GIF under 10 MB, ffmpeg compression recipe.
-- **Dual-remote push** — GitHub + Gitee via SSH with one-shot `publish.bat` (full-width-punctuation trap and stale-remote trap documented).
-- **cargo / PyPI baseline** — standard registry flow for each, marked honestly as not yet battle-tested locally.
-- **PyInstaller exe build** — the `_MEIPASS` path trap that erases user output, the `base_library.zip` stale-cache trap, and the bat ASCII-punctuation trap.
-- **GitHub Actions release** — tag + npm publish + GitHub Release in one workflow, with `npm version` rewiring `package.json`.
+Manual copy (no `npx` or `git`, e.g. corporate proxies):
 
-Full dense facts: [`.agents/skills/publish-kit/REFERENCE.md`](./.agents/skills/publish-kit/REFERENCE.md).
+```powershell
+# PowerShell
+mkdir $env:USERPROFILE\.agents\skills\publish-kit
+curl -L https://raw.githubusercontent.com/EternalNight996/publish-kit/main/.agents/skills/publish-kit/SKILL.md -o $env:USERPROFILE\.agents\skills\publish-kit\SKILL.md
+# repeat for REFERENCE.md / TEMPLATE.md / INSTALL.md / DSH-DEPLOY.md / COMPATIBILITY.md / EXAMPLES.md
+```
 
-## Templates
+> **Note on npm:** publish-kit ships at GitHub + Gitee as a skill bundle; it is **not published to npm**. The npm wrapper pattern (for users who want `dsh plugin --profile web add publish-kit`) is documented in `DSH-DEPLOY.md` and `TEMPLATE.md` section A as an opt-in — no code in the bundle assumes it.
 
-Ten copy-paste skeletons (each with "when to use" + knobs), one per release track:
+---
 
-| # | Template | Track |
-| --- | --- | --- |
-| A | `package.json` (DSH plugin) | npm + DSH marketplace |
-| B | `data/plugins/<owner>__<repo>.yml` | awesome-dsh-plugin PR |
-| C | Issue body | dsh-market submission |
-| D | `publish.bat` | GitHub + Gitee dual-remote |
-| E | Bilingual README skeleton | landing page for npm + GitHub |
-| F | `PUBLISH.md` | git-install three-knob config for DSH plugins |
-| G | GitHub Actions release workflow | tag + publish + GitHub Release |
-| H | `Cargo.toml` | crates.io |
-| I | `pyproject.toml` | PyPI |
-| J | PyInstaller build script | standalone exe |
+## 🔧 Bundle layout
 
-See [`.agents/skills/publish-kit/TEMPLATE.md`](./.agents/skills/publish-kit/TEMPLATE.md) for all ten.
+```
+publish-kit/
+├── README.md              # this file (English)
+├── README.zh.md           # Chinese mirror
+├── LICENSE                # MIT
+├── CHANGELOG.md           # Keep a Changelog
+├── .gitignore
+├── .claude-plugin/
+│   ├── plugin.json        # Vercel CLI manifest
+│   └── marketplace.json   # Vercel CLI marketplace
+└── .agents/skills/publish-kit/
+    ├── SKILL.md           # main entry, <100 lines, model-invoked
+    ├── REFERENCE.md       # dense facts (sections A-J)
+    ├── TEMPLATE.md        # 10 copy-paste skeletons
+    ├── INSTALL.md         # 4 install paths
+    ├── DSH-DEPLOY.md      # DSH-specific deployment
+    ├── COMPATIBILITY.md   # platform + frontmatter matrix
+    └── EXAMPLES.md        # worked transcripts
+```
 
-## Deploy
+---
 
-publish-kit is a skill bundle, not a DSH plugin. Distribution follows the same channels as any open-source skill bundle:
+## 🗺 Roadmap
 
-- **GitHub + Gitee** as the source of truth (`git push` both remotes on every release).
-- **`npx skills add <url>`** — Vercel CLI routes to `~/.agents/skills/` on every supported host.
-- **`awesome-dsh-plugin`** — open a PR adding the entry under category `tooling`.
-- **`dsh-market`** — file an Issue listing the bundle with topic `dsh-skill`.
-- **DSH marketplaces** — repo topics `dsh-skill`, `agent-skills`, `publishing`, `npm`, `release` make the auto-scanners pick it up.
+**v0.1.0 (current):** initial bundle — SKILL.md / REFERENCE.md / TEMPLATE.md / INSTALL.md / DSH-DEPLOY.md / COMPATIBILITY.md / scripts/bootstrap-release.{ps1,sh}.
 
-DSH-specific deployment (six discovery roots, watch semantics, rank ordering) lives in [`.agents/skills/publish-kit/DSH-DEPLOY.md`](./.agents/skills/publish-kit/DSH-DEPLOY.md).
+**v0.1.1 (current):** added EXAMPLES.md with two worked transcripts (this release + a fictional DSH plugin npm flow).
 
-## Compatibility
+**Coming soon:**
+- [ ] `release-doctor.mjs` — pre-flight checker that scans a target repo for the 9-row pitfall table in REFERENCE.md J and reports drift before publish
+- [ ] `verify-release.mjs` — post-publish verifier that walks every channel (npm view, gh release, gitee release, awesome-dsh-plugin search, dsh-market issue status, GitHub topics, marketplace catalog) and reports per-channel status
+- [ ] npm wrapper package (`@eternalnight/publish-kit-plugin`) — ships `skills/publish-kit/` as an asset, hooks a `prepare` script to symlink into `~/.agents/skills/`, exposed via `dsh plugin --profile web add`
+- [ ] Multi-language templates — add Rust `Cargo.lock` strategy, Python `setup.cfg` legacy path, GitLab CI / Gitea Actions release workflows
 
-| Host | Skill directory | Watch? | Restart on install? |
-| --- | --- | --- | --- |
-| DeepSeek Harness (DSH) | `<root>/.agents/skills/`, `~/.agents/skills/`, ... | yes | no |
-| Claude Code | `~/.claude/skills/`, `<root>/.claude/skills/` | yes | no |
-| Codex CLI | `~/.codex/skills/` | yes | no |
-| Gemini CLI | `~/.gemini/skills/` | yes | no |
-| Cursor | `<root>/.cursor/skills/` | partial | depends |
-| Windsurf / VS Code Copilot | best-effort | — | — |
+---
 
-Frontmatter uses only the universally-supported `name` + `description` fields. Full matrix and body-format limits in [`.agents/skills/publish-kit/COMPATIBILITY.md`](./.agents/skills/publish-kit/COMPATIBILITY.md).
+## 📦 Release log
 
-## One-shot release script
+- **v0.1.1** (2026-08-28): bootstrap-release scripts (ps1 + sh); EXAMPLES.md worked transcripts; SKILL.md See also extended; README script reference added.
+- **v0.1.0** (2026-08-28): initial bundle — 6-document skill, 10 templates, 4 install paths, full DSH deployment guide. PR #3554 to awesome-dsh-plugin (category=skill); Issue #94 to dsh-market.
 
-For a fully automated release that follows this playbook end-to-end, see [`scripts/bootstrap-release.ps1`](./scripts/bootstrap-release.ps1) (PowerShell) and [`scripts/bootstrap-release.sh`](./scripts/bootstrap-release.sh) (bash). They run the six-step flow: bump version, test+build, commit, npm publish (with throwaway token), tag + push both remotes, GitHub RP fields. Pass `patch`, `minor`, or `major` as the argument.
+> See [CHANGELOG.md](./CHANGELOG.md) for the Keep a Changelog-style record.
 
-## How the skill gets triggered
+---
 
-The agent reads the `description` frontmatter field on every catalog refresh. publish-kit's description carries the concrete trigger branches:
+## 🔌 Discovery / Distribution
 
-> Use when the user wants to publish, release, deploy, ship, cut a version, bump a version, tag a release, write or restructure a README, slim an npm package, push to GitHub and Gitee, submit a plugin to a marketplace, run cargo publish, publish to PyPI, build a PyInstaller exe, draft a changelog, or set up GitHub Releases.
+The GitHub repo carries the topics that auto-discovery scanners read. Listing them makes the bundle findable through every supported channel.
 
-Once loaded, the skill workflow classifies the release into one of five tracks (npm / DSH plugin / cargo / PyPI / git-only), runs the per-track SOP, and applies the matching template from `TEMPLATE.md`.
+| Channel | Mechanism | Status |
+|---|---|---|
+| `npx skills add <repo-url>` | Vercel CLI reads `.claude-plugin/plugin.json` | ✅ |
+| **awesome-dsh-plugin** | PR adding `data/plugins/EternalNight996__publish-kit.yml` | ✅ PR #3554 |
+| **dsh-market** (2BingLing) | Issue submission | ✅ Issue #94 |
+| **dsh-marketplace** (ouyangyipeng) | reads `dsh-skill` topic | ✅ topic set |
+| **dsh-find-plugin** | searches by topic | ✅ |
+| **dsh-plugin-marketplace** (YELEBAI) | reads topic + `dsh.marketplace` metadata | n/a (skill bundle, not plugin) |
 
-## FAQ
+GitHub repo topics set:
 
-**Why a directory bundle and not a single `SKILL.md`?** Because the dense release SOP exceeds 100 lines (house format) and the templates need to be copy-paste friendly. Splitting into `REFERENCE.md` + `TEMPLATE.md` + `INSTALL.md` keeps `SKILL.md` short and lets each host render Markdown files independently.
+```
+agent-skills · cargo · dsh-skill · npm · publishing · pypi · release
+```
 
-**Why publish as a skill and not as an npm package?** Both work. As an npm package you also get a `dsh plugin --profile web add` install path (DSH users reach it via the plugin market). As a skill bundle you get `npx skills add` on every host including DSH. The two are complementary; the optional npm-wrapper pattern is documented in `DSH-DEPLOY.md`.
+---
 
-**Does the agent need the skill loaded to read the templates?** Yes — the templates are part of the bundle. Loading `publish-kit` makes `TEMPLATE.md` available to the agent's tool surface alongside `SKILL.md`.
+## 📜 License
 
-**What does "publish-kit" not cover?** Host-specific runtime debugging, package internals design, language-specific lint/test setup, monorepo versioning strategies. It covers the release boundary only.
+MIT
 
-**How do I report a release trap that publish-kit missed?** Open an Issue; the bundle gets a tag bump on every accepted addition.
+---
 
-## License
-
-[MIT](./LICENSE) — Copyright (c) 2026 EternalNight996.
+> **Ship once, ship in agreement.** ⭐ If you've ever debugged "why is Gitee 4 versions behind," give it a Star.
