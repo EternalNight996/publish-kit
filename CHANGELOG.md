@@ -5,7 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2026-01-XX
+## [0.1.2] - 2026-08-28
+
+### Changed
+- Rewrote top-level `README.md` (243 lines, English) following the dsh-memory-eternal productization pattern: pain table, Before/After mapping, Mermaid flow, core design rationale, competitive differentiation, feature tour, install paths, bundle layout, roadmap, release log, discovery table.
+- Clarified npm status: publish-kit is **not published to npm**. The npm wrapper pattern (for users who want `dsh plugin --profile web add publish-kit`) is documented as opt-in in `DSH-DEPLOY.md` and `TEMPLATE.md` section A. No code in the bundle assumes it.
+
+### Added
+- New `README.zh.md` (202 lines, Chinese) — Chinese mirror of the rewritten English README, same structure.
+
+## [0.1.1] - 2026-08-28
+
+### Added
+- `scripts/bootstrap-release.ps1` and `scripts/bootstrap-release.sh`: six-step release automation (bump version, test, build, commit, npm publish with throwaway token in `finally`-deleted `.npmrc.publish`, tag + push both remotes, GitHub RP fields via API).
+- `.agents/skills/publish-kit/EXAMPLES.md`: two worked transcripts (this skill's own v0.1.0 release and a full DSH plugin npm flow) plus a 7-row pitfall table.
+- `README.md` script reference section.
+- `SKILL.md` See also table extended to include EXAMPLES.md.
+
+## [0.1.0] - 2026-08-28
 
 ### Added
 - Initial release of publish-kit skill bundle.
