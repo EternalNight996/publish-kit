@@ -1,0 +1,23 @@
+{
+  "name": "publish-kit",
+  "description": "Release playbook for AI agents covering npm / GitHub / Gitee / DSH marketplace / cargo crates.io / PyPI / PyInstaller multi-channel publish, bilingual README design, git tag SOP, and npm package slimming.",
+  "version": "0.1.0",
+  "author": {
+    "name": "EternalNight996",
+    "email": ""
+  },
+  "homepage": "https://github.com/EternalNight996/publish-kit",
+  "repository": "https://github.com/EternalNight996/publish-kit",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "publishing",
+    "release",
+    "npm",
+    "cargo",
+    "pypi",
+    "dsh-plugin",
+    "dsh-skill",
+    "agent-skills"
+  ]
+}

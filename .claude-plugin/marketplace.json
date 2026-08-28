@@ -1,0 +1,20 @@
+{
+  "name": "publish-kit",
+  "description": "publish-kit skill bundle for Claude Code / Codex / Cursor / Gemini / DSH: release playbook with 10 copy-paste templates covering npm, DSH plugin marketplace, cargo, PyPI, PyInstaller, dual-remote GitHub+Gitee, and GitHub Actions.",
+  "owner": {
+    "name": "EternalNight996",
+    "email": ""
+  },
+  "plugins": [
+    {
+      "name": "publish-kit",
+      "description": "Release playbook covering npm / GitHub / Gitee / DSH marketplace / cargo / PyPI / PyInstaller multi-channel publish, bilingual README, git tag SOP, and npm package slimming.",
+      "version": "0.1.0",
+      "source": "./",
+      "author": {
+        "name": "EternalNight996",
+        "email": ""
+      }
+    }
+  ]
+}
