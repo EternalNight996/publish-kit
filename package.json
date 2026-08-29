@@ -1,83 +1,83 @@
-{
-  "name": "@eternalnight/publish-kit",
-  "version": "0.4.0",
-  "description": "Release playbook for AI agents. npm-installable CLI + DSH plugin + skill bundle. Covers npm, GitHub+Gitee dual remote, DSH marketplace, cargo crates.io, PyPI, PyInstaller exe, Go single-binary, Rust single-binary, Electron/Tauri desktop. Bilingual EN/ZH.",
-  "keywords": [
-    "publishing",
-    "release",
-    "npm",
-    "cargo",
-    "pypi",
-    "pyinstaller",
-    "dsh-plugin",
-    "dsh-skill",
-    "agent-skills",
-    "release-automation",
-    "git-tag",
-    "marketplace",
-    "bilingual-readme"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/EternalNight996/publish-kit.git"
-  },
-  "homepage": "https://github.com/EternalNight996/publish-kit",
-  "bugs": {
-    "url": "https://github.com/EternalNight996/publish-kit/issues"
-  },
-  "author": {
-    "name": "EternalNight996"
-  },
-  "license": "MIT",
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
-  },
-  "bin": {
-    "bootstrap-release.ps1": "./scripts/bootstrap-release.ps1",
-    "bootstrap-release.sh": "./scripts/bootstrap-release.sh",
-    "release-exe.ps1": "./scripts/release-exe.ps1",
-    "release-exe.sh": "./scripts/release-exe.sh"
-  },
-  "files": [
-    "README.md",
-    "README.zh.md",
-    "LICENSE",
-    "CHANGELOG.md",
-    "scripts/bootstrap-release.ps1",
-    "scripts/bootstrap-release.sh",
-    "scripts/release-exe.ps1",
-    "scripts/release-exe.sh",
-    ".agents/skills/publish-kit/SKILL.md",
-    ".agents/skills/publish-kit/REFERENCE.md",
-    ".agents/skills/publish-kit/TEMPLATE.md",
-    ".agents/skills/publish-kit/INSTALL.md",
-    ".agents/skills/publish-kit/DSH-DEPLOY.md",
-    ".agents/skills/publish-kit/COMPATIBILITY.md",
-    ".agents/skills/publish-kit/EXAMPLES.md",
-    "assets/readme-banner.svg",
-    "cordis.patch.yml",
-    "scripts/postinstall.js"
-  ],
-  "scripts": {
-    "postinstall": "node ./scripts/postinstall.js"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "dsh": {
-    "client": {
-      "platform": "web"
-    },
-    "bundle": {
-      "patch": "./cordis.patch.yml"
-    },
-    "marketplace": {
-      "profiles": [
-        "web"
-      ],
-      "requiresBuildApproval": false,
-      "requiresRestart": true,
-      "manualSteps": false
-    }
-  }
+﻿{
+    "name":  "@eternalnight/publish-kit",
+    "version":  "0.5.0-beta.1",
+    "description":  "Release playbook for AI agents. npm-installable CLI + DSH plugin + skill bundle. Covers npm, GitHub+Gitee dual remote, DSH marketplace, cargo crates.io, PyPI, PyInstaller exe, Go single-binary, Rust single-binary, Electron/Tauri desktop. Bilingual EN/ZH.",
+    "keywords":  [
+                     "publishing",
+                     "release",
+                     "npm",
+                     "cargo",
+                     "pypi",
+                     "pyinstaller",
+                     "dsh-plugin",
+                     "dsh-skill",
+                     "agent-skills",
+                     "release-automation",
+                     "git-tag",
+                     "marketplace",
+                     "bilingual-readme"
+                 ],
+    "repository":  {
+                       "type":  "git",
+                       "url":  "git+https://github.com/EternalNight996/publish-kit.git"
+                   },
+    "homepage":  "https://github.com/EternalNight996/publish-kit",
+    "bugs":  {
+                 "url":  "https://github.com/EternalNight996/publish-kit/issues"
+             },
+    "author":  {
+                   "name":  "EternalNight996"
+               },
+    "license":  "MIT",
+    "publishConfig":  {
+                          "registry":  "https://registry.npmjs.org/"
+                      },
+    "bin":  {
+                "bootstrap-release.ps1":  "./scripts/bootstrap-release.ps1",
+                "bootstrap-release.sh":  "./scripts/bootstrap-release.sh",
+                "release-exe.ps1":  "./scripts/release-exe.ps1",
+                "release-exe.sh":  "./scripts/release-exe.sh"
+            },
+    "files":  [
+                  "README.md",
+                  "README.zh.md",
+                  "LICENSE",
+                  "CHANGELOG.md",
+                  "scripts/bootstrap-release.ps1",
+                  "scripts/bootstrap-release.sh",
+                  "scripts/release-exe.ps1",
+                  "scripts/release-exe.sh",
+                  ".agents/skills/publish-kit/SKILL.md",
+                  ".agents/skills/publish-kit/REFERENCE.md",
+                  ".agents/skills/publish-kit/TEMPLATE.md",
+                  ".agents/skills/publish-kit/INSTALL.md",
+                  ".agents/skills/publish-kit/DSH-DEPLOY.md",
+                  ".agents/skills/publish-kit/COMPATIBILITY.md",
+                  ".agents/skills/publish-kit/EXAMPLES.md",
+                  "assets/readme-banner.svg",
+                  "cordis.patch.yml",
+                  "scripts/postinstall.js"
+              ],
+    "scripts":  {
+                    "postinstall":  "node ./scripts/postinstall.js"
+                },
+    "engines":  {
+                    "node":  "\u003e=18"
+                },
+    "dsh":  {
+                "client":  {
+                               "platform":  "web"
+                           },
+                "bundle":  {
+                               "patch":  "./cordis.patch.yml"
+                           },
+                "marketplace":  {
+                                    "profiles":  [
+                                                     "web"
+                                                 ],
+                                    "requiresBuildApproval":  false,
+                                    "requiresRestart":  true,
+                                    "manualSteps":  false
+                                }
+            }
 }
