@@ -16,7 +16,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
 
 const args = process.argv.slice(2);
 const targetDir = args.find(a => !a.startsWith('--')) || '.';
@@ -41,7 +41,15 @@ function readJSON(p) { return JSON.parse(fs.readFileSync(path.join(root, p), 'ut
 function readText(p) { return fs.readFileSync(path.join(root, p), 'utf8'); }
 
 function sh(cmd, args) {
-  return execFileSync(cmd, args, { cwd: root, encoding: 'utf8' });
+  let exe = cmd;
+  if (process.platform === 'win32' && !path.extname(cmd)) {
+    try {
+      exe = execSync(`where.exe ${cmd}`, { encoding: 'utf8' }).trim().split(/\r?\n/)[0];
+    } catch (e) {
+      throw new Error(`sh: command not found: ${cmd}`);
+    }
+  }
+  return execFileSync(exe, args, { cwd: root, encoding: 'utf8' });
 }
 
 // Check 1: git tag + working tree
