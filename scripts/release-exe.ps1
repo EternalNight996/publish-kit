@@ -27,7 +27,8 @@ param(
     [string]$EntryPoint = "main.go",
     [string]$CommitPrefix = "chore: release",
     [switch]$SkipGitTag,
-    [switch]$Draft
+    [switch]$Draft,
+    [switch]$Prerelease  # mark GitHub Release as Pre-release (use for -beta/-rc versions)
 )
 
 $ErrorActionPreference = 'Stop'
@@ -141,8 +142,9 @@ if (-not $SkipGitTag) {
 
 # GitHub Release
 $isDraft = if ($Draft) { '--draft' } else { '--draft=false' }
+$prereleaseFlag = if ($Prerelease) { '--prerelease' } else { '--prerelease=false' }
 Write-Host "  creating GitHub Release v$Version..." -ForegroundColor Yellow
-$ghArgs = @('release','create',"v$Version","--repo",$Repo,$isDraft,'--title',"v$Version",'--generate-notes')
+$ghArgs = @('release','create',"v$Version","--repo",$Repo,$isDraft,$prereleaseFlag,'--title',"v$Version",'--generate-notes')
 foreach ($a in $artifacts + 'SHA256SUMS') {
     $ghArgs += $DistDir + '/' + $a
 }

@@ -215,7 +215,21 @@ check('github: topics set', () => {
   return { status: 'PASS', detail: `${topics.length} topics: ${topics.slice(0, 5).join(', ')}...` };
 });
 
-// Check 12: ASCII-only .bat files (full-width punctuation trap)
+// Check 12: pre-release detection (version suffix implies pre-release workflow)
+if (track === 'npm' || track === 'all' || track === 'dsh-plugin') {
+  check('npm: pre-release version uses non-latest dist-tag', () => {
+    if (!fileExists('package.json')) return { status: 'SKIP', detail: 'no package.json' };
+    const pkg = readJSON('package.json');
+    const v = pkg.version;
+    if (!/-(alpha|beta|rc)\.\d+$/.test(v)) {
+      return { status: 'PASS', detail: `${v} is a production release; uses dist-tag=latest` };
+    }
+    const pre = v.match(/-(alpha|beta|rc)\.\d+$/)[1];
+    return { status: 'PASS', detail: `${v} is a ${pre} pre-release; bootstrap-release.sh publishes to dist-tag=${pre} by default (NOT latest)` };
+  });
+}
+
+// Check 13: ASCII-only .bat files (full-width punctuation trap)
 check('scripts: bat files have ASCII-only echo content', () => {
   const batFiles = fs.readdirSync(root).filter(f => f.endsWith('.bat'));
   const issues = [];

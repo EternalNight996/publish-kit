@@ -117,7 +117,9 @@ git push origin main --tags
 log "  creating GitHub Release v$VERSION..." "$YELLOW"
 DRAFT_FLAG="--draft=false"
 [[ "${DRAFT:-}" == "1" ]] && DRAFT_FLAG="--draft"
-ARGS=(release create "v$VERSION" --repo "$REPO" $DRAFT_FLAG --title "v$VERSION" --generate-notes)
+PRERELEASE_FLAG="--prerelease=false"
+[[ "${PRERELEASE:-}" == "1" ]] && PRERELEASE_FLAG="--prerelease"
+ARGS=(release create "v$VERSION" --repo "$REPO" $DRAFT_FLAG $PRERELEASE_FLAG --title "v$VERSION" --generate-notes)
 for a in "${ARTIFACTS[@]}"; do ARGS+=("$DIST/$a"); done
 ARGS+=("$DIST/SHA256SUMS")
 gh "${ARGS[@]}"

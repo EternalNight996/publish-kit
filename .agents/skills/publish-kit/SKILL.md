@@ -24,10 +24,11 @@ Every channel is an independent silo. npm knows a version, git knows a commit, m
 ## Workflow
 
 1. Classify the release: npm package, DSH plugin, git-only project, cargo crate, PyPI/exe artifact. See REFERENCE for per-track steps.
-2. Pre-flight: registry version check (`npm view <pkg> version`), lock npx versions, confirm files whitelist separates runtime assets from showcase assets.
-3. README gate: bilingual split files, banner/badges/install/features/changelog order, GIF under 10 MB. See REFERENCE section F.
-4. Publish in the Quick start order; never reorder (tag before push, verify before push tags).
-5. Post-publish: marketplace submissions (section B), RP fields via GitHub API (section A), smoke-test install.
+2. **Pre-release first, then promote.** For non-trivial changes: publish a pre-release (`./scripts/bootstrap-release.sh patch --pre-release beta`) to npm `next` dist-tag + GitHub Pre-release; iterate (`--pre-release-bump 2/3/...`); once stable, promote (`--promote-from-beta`) to `latest`. See REFERENCE section K.
+3. Pre-flight: registry version check (`npm view <pkg> version`), lock npx versions, confirm files whitelist separates runtime assets from showcase assets.
+4. README gate: bilingual split files, banner/badges/install/features/changelog order, GIF under 10 MB. See REFERENCE section F.
+5. Publish in the Quick start order; never reorder (tag before push, verify before push tags).
+6. Post-publish: marketplace submissions (section B), RP fields via GitHub API (section A), smoke-test install.
 
 ## Anti-patterns
 

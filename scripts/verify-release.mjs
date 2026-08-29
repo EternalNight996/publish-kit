@@ -76,6 +76,30 @@ check('npm: registry has the published version', () => {
   return { status: 'WARN', detail: `npm has ${remote}, expected ${bareVersion}` };
 });
 
+// Channel 1b: npm dist-tag check (pre-release vs latest)
+check('npm: dist-tag matches version type', () => {
+  if (!fs.existsSync(path.join(root, 'package.json'))) return { status: 'SKIP', detail: 'no package.json' };
+  const pkgName = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).name;
+  // Determine expected dist-tag from local version
+  const isPrerelease = /-(alpha|beta|rc)\.\d+$/.test(bareVersion);
+  const expectedTag = isPrerelease ? bareVersion.match(/-(alpha|beta|rc)\.\d+$/)[1] : 'latest';
+  let actualTag;
+  try {
+    actualTag = sh('npm', ['dist-tag', 'ls', pkgName, '--registry=https://registry.npmjs.org/']).trim();
+  } catch (err) {
+    return { status: 'WARN', detail: `cannot read dist-tags: ${err.message.trim()}` };
+  }
+  // The dist-tag ls output format: "tag: version\n..." - parse and find one pointing at bareVersion
+  const m = actualTag.match(new RegExp(`^(${expectedTag}):\s*(\S+)`, 'm'));
+  if (!m) {
+    return { status: 'WARN', detail: `dist-tag `${expectedTag}` not set; raw:\n${actualTag.split('\n').slice(0, 5).join('\n')}` };
+  }
+  if (m[2] === bareVersion) {
+    return { status: 'PASS', detail: `dist-tag `${expectedTag}` -> ${m[2]}` };
+  }
+  return { status: 'WARN', detail: `dist-tag `${expectedTag}` -> ${m[2]} (expected ${bareVersion})` };
+});
+
 // Channel 2: GitHub Release exists for this tag
 check('github: release exists for tag', () => {
   let out;

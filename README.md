@@ -415,6 +415,35 @@ publish-kit/
 
 ---
 
+## 🧪 Pre-release strategy (ship a beta, then promote)
+
+For any non-trivial change, publish a pre-release first, validate, then promote to `latest`. A bug in `latest` hits 100% of `npm install <pkg>` users; a bug in `beta` only hits opt-in testers.
+
+```bash
+# Step 1: pre-release (npm `beta` dist-tag + GitHub Pre-release)
+./scripts/bootstrap-release.sh patch --pre-release beta
+# -> v0.4.1-beta.1
+
+# Step 2: iterate on beta if bugs surface
+./scripts/bootstrap-release.sh --pre-release beta --pre-release-bump 2
+# -> v0.4.1-beta.2
+
+# Step 3: promote to latest (no version bump; only moves dist-tag)
+./scripts/bootstrap-release.sh --promote-from-beta --promote-version v0.4.1-beta.2
+# -> v0.4.1 published to npm `latest` + GitHub Production release
+```
+
+| Version | npm dist-tag | GitHub Release flag | Use for |
+| --- | --- | --- | --- |
+| `0.4.1-beta.1` | `beta` | Pre-release | first external test pass |
+| `0.4.1-beta.2` | `beta` | Pre-release | after fixing beta.1 bugs |
+| `0.4.1-rc.1` | `rc` | Pre-release | release-candidate (feature-frozen) |
+| `0.4.1` | `latest` | Production | promoted from rc.1 |
+
+**Skip pre-release for**: doc-only changes (README typo, comment cleanup), patch releases with no behavior change. Full SOP + recovery playbook in [REFERENCE.md section K](./.agents/skills/publish-kit/REFERENCE.md).
+
+---
+
 ## 🗺 Roadmap
 
 **v0.1.0 (current):** initial bundle — SKILL.md / REFERENCE.md / TEMPLATE.md / INSTALL.md / DSH-DEPLOY.md / COMPATIBILITY.md / scripts/bootstrap-release.{ps1,sh}.

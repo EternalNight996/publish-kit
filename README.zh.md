@@ -418,6 +418,35 @@ publish-kit/
 
 ---
 
+## 🧪 预发布策略（先发测试版，再转正）
+
+任何非平凡改动，先发测试版、验证、再转正到 `latest`。`latest` 出 bug 影响所有 `npm install <pkg>` 用户；`beta` 出 bug 只影响主动选择的测试者。
+
+```bash
+# 第 1 步：测试版（npm `beta` dist-tag + GitHub Pre-release）
+./scripts/bootstrap-release.sh patch --pre-release beta
+# -> v0.4.1-beta.1
+
+# 第 2 步：迭代（修 bug 后）
+./scripts/bootstrap-release.sh --pre-release beta --pre-release-bump 2
+# -> v0.4.1-beta.2
+
+# 第 3 步：转正到 latest（不 bump 版本，只移 dist-tag）
+./scripts/bootstrap-release.sh --promote-from-beta --promote-version v0.4.1-beta.2
+# -> v0.4.1 发布到 npm `latest` + GitHub Production
+```
+
+| 版本 | npm dist-tag | GitHub Release flag | 用途 |
+| --- | --- | --- | --- |
+| `0.4.1-beta.1` | `beta` | Pre-release | 第一次外部测试 |
+| `0.4.1-beta.2` | `beta` | Pre-release | 修 beta.1 bug 后 |
+| `0.4.1-rc.1` | `rc` | Pre-release | 发布候选（功能冻结）|
+| `0.4.1` | `latest` | Production | 从 rc.1 转正 |
+
+**跳过预发布**：文档改动（README 错字、注释清理）、无行为变化的 patch 发布。完整 SOP + 回滚指南见 [REFERENCE.md K 节](./.agents/skills/publish-kit/REFERENCE.md)。
+
+---
+
 ## 🗺 Roadmap
 
 **v0.1.0（当前）：** 首发 bundle——SKILL.md / REFERENCE.md / TEMPLATE.md / INSTALL.md / DSH-DEPLOY.md / COMPATIBILITY.md / scripts/bootstrap-release.{ps1,sh}。
