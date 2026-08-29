@@ -458,7 +458,9 @@ For any non-trivial change, publish a pre-release first, validate, then promote 
 
 **v0.3.0 (current):** repo governance — `.github/ISSUE_TEMPLATE/{bug_report,feature_request,release_question}.yml`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/CONTRIBUTING.md`, `.github/SECURITY.md`, `.github/CODE_OF_CONDUCT.md`, `.github/FUNDING.yml`; CI workflow (`.github/workflows/ci.yml`, 4 jobs: validate-skill / check-readme-links / check-package / check-markdown-toc); `assets/social-preview.png` (1280x640).
 
-**v0.4.0 (current):** scripts — `release-doctor.mjs` (12 pre-flight checks for git / npm / DSH marketplace / lockfile / docs / remotes / GH RP / .bat), `verify-release.mjs` (9-channel post-publish verifier), `scripts/README.md` (usage docs); `.github/dependabot.yml` (weekly GitHub Actions + npm + Docker auto-PR); repo settings (`delete_branch_on_merge`, `allow_update_branch`, Discussions); GitHub Releases for v0.2.0 / v0.2.1 / v0.3.0 / v0.4.0; PR #3554 conflicts resolved (now `MERGEABLE`); **Gitee mirror complete** (`https://gitee.com/eternalnight996/publish-kit` has main + 9 tags); **npm `@eternalnight/publish-kit@0.4.0` published** (20 files / 56.6 KB / signed).
+**v0.5.0-beta.1 (current):** **Pre-release workflow** — REFERENCE.md K section + bootstrap-release.{ps1,sh} with `--pre-release beta` / `--promote-from-beta` flags; release-exe.{ps1,sh} with `-Prerelease` flag; release-doctor prerelease check; verify-release dist-tag channel; SKILL.md Workflow step 2 + README EN/ZH Pre-release strategy section; **npm `@eternalnight/publish-kit@0.5.0-beta.1` on dist-tag=`beta`**; git tag `v0.5.0-beta.1` on GitHub + Gitee; GitHub Release marked Pre-release.
+
+**v0.4.0:** scripts — `release-doctor.mjs` (12 pre-flight checks for git / npm / DSH marketplace / lockfile / docs / remotes / GH RP / .bat), `verify-release.mjs` (9-channel post-publish verifier), `scripts/README.md` (usage docs); `.github/dependabot.yml` (weekly GitHub Actions + npm + Docker auto-PR); repo settings (`delete_branch_on_merge`, `allow_update_branch`, Discussions); GitHub Releases for v0.2.0 / v0.2.1 / v0.3.0 / v0.4.0; PR #3554 conflicts resolved (now `MERGEABLE`); **Gitee mirror complete** (`https://gitee.com/eternalnight996/publish-kit` has main + 9 tags); **npm `@eternalnight/publish-kit@0.4.0` published** (20 files / 56.6 KB / signed).
 
 **Coming soon:**
 - [ ] `release-doctor.mjs` — pre-flight checker that scans a target repo for the 9-row pitfall table in REFERENCE.md J and reports drift before publish
@@ -470,6 +472,7 @@ For any non-trivial change, publish a pre-release first, validate, then promote 
 
 ## 📦 Release log
 
+- **v0.5.0-beta.1** (2026-08-29): pre-release workflow (REFERENCE.md K + bootstrap-release prerelease/promote flags + release-exe prerelease flag + release-doctor + verify-release dist-tag check + SKILL + README EN/ZH). npm `@eternalnight/publish-kit@0.5.0-beta.1` on dist-tag=`beta`. GitHub Pre-release.
 - **v0.4.0** (2026-08-28): `release-doctor.mjs` (12 pre-flight checks) + `verify-release.mjs` (9-channel post-publish verifier) + `scripts/README.md`; `.github/dependabot.yml`; repo settings (delete_branch_on_merge + Discussions); PR #3554 conflicts resolved; **Gitee mirror complete**; **npm `@eternalnight/publish-kit@0.4.0` published**.
 - **v0.3.0** (2026-08-28): repo governance — issue templates (bug/feature/question), PR template, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, FUNDING; CI workflow (4 jobs); social-preview.png (1280x640).
 - **v0.2.1** (2026-08-28): docs cleanup — removed duplicate Install section in both languages; marked npm wrapper Roadmap item as completed.

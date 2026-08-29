@@ -16,11 +16,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DSH-DEPLOY.md`: extended with a new "Skill bundle inclusion standard (the canonical checklist)" chapter — required file layout, frontmatter contract, repo-level requirements, marketplace-by-marketplace detailed steps (PR/Issue/auto-scan patterns + npm wrapper), topic checklist, disqualifiers, inclusion boosters.
 - New README badge set: Agent Skill bundle, GitHub release, stars, license, DSH-DEPLOY-native, npm opt-in wrapper, cargo crates.io, PyPI/PyInstaller (8 badges total).
 
-## [0.4.0] - 2026-08-28
+## [0.5.0-beta.1] - 2026-08-29
 
 ### Added
-- `scripts/release-doctor.mjs` (215 lines): pre-flight checker that walks the REFERENCE.md J 9-row pitfall table against a target repo. 12 checks cover git clean / tag at HEAD / version sync / npm 403 prevention / peer range widths / files whitelist / `dsh.marketplace` metadata / lockfile / README / CHANGELOG / LICENSE / GitHub + Gitee remotes / GitHub description + topics / .bat ASCII-only. Supports `--track={npm,dsh-plugin,cargo,pypi,exe,github-gitee,all}` and `--strict` (WARN treated as FAIL).
-- `scripts/verify-release.mjs` (170 lines): post-publish verifier with 9 channels (npm registry version, GitHub Release exists for tag, Gitee tag exists, GitHub topics, GitHub description, awesome-dsh-plugin yml entry merged, dsh-market submission Issue, GitHub Actions CI pass on tag commit, working tree clean).
+- **Pre-release workflow** (REFERENCE.md section K): ship beta/rc first, promote later. Reduces blast radius of bad `latest` releases.
+- `scripts/bootstrap-release.{ps1,sh}`: new flags `--pre-release <tag>` (`beta` / `rc` / `alpha`), `--pre-release-bump <n>` (iterate counter), `--promote-from-beta` (move dist-tag from `beta`/`rc` to `latest` without version bump).
+- `scripts/release-exe.{ps1,sh}`: new flag `-Prerelease` / `--prerelease` for GitHub Pre-release mark on exe releases.
+- `scripts/release-doctor.mjs`: new check `npm: pre-release version uses non-latest dist-tag` (warns if `0.5.0-beta.1` is being published under dist-tag=latest).
+- `scripts/verify-release.mjs`: new channel `npm: dist-tag matches version type` (confirms the version is on the right tag after publish).
+- `REFERENCE.md` section K (96 lines): pre-release / dist-tag strategy with the two-step publish flow, manual dist-tag commands, recovery playbook for bad `latest` releases.
+- `SKILL.md` Workflow step 2: pre-release first, then promote (kept under 100 lines: 60 lines).
+- `README.md` + `README.zh.md`: new `Pre-release strategy` section with version/dist-tag table.
+
+### Published
+- npm `@eternalnight/publish-kit@0.5.0-beta.1` on dist-tag=`beta` (latest stays at 0.4.0).
+- git tag `v0.5.0-beta.1` pushed to GitHub + Gitee.
+- GitHub Release `v0.5.0-beta.1` marked Pre-release.
+
+## [0.4.0] - 2026-08-28
 - `scripts/README.md` (85 lines): usage docs for all 4 scripts + recommended local dev loop.
 - `.github/dependabot.yml`: weekly auto-PR for GitHub Actions / npm / Docker dependencies with grouped minor+patch updates.
 - `.github/ISSIS_TEMPLATE/release_question.yml`: new release-question template added to existing bug_report + feature_request.
@@ -35,11 +48,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### npm package published
 - **`@eternalnight/publish-kit@0.4.0`** live at https://registry.npmjs.org/. 20 files / 56.6 KB / signed. Includes `release-doctor.mjs`, `verify-release.mjs`, `scripts/README.md`, `push-to-gitee.{ps1,sh}`. GPG-signed by npm registry.
 
-## [0.4.0] - 2026-08-28
+## [0.5.0-beta.1] - 2026-08-29
 
 ### Added
-- `scripts/release-doctor.mjs` (215 lines): pre-flight checker that walks the REFERENCE.md J 9-row pitfall table against a target repo. 12 checks cover git clean / tag at HEAD / version sync / npm 403 prevention / peer range widths / files whitelist / `dsh.marketplace` metadata / lockfile / README / CHANGELOG / LICENSE / GitHub + Gitee remotes / GitHub description + topics / .bat ASCII-only. Supports `--track={npm,dsh-plugin,cargo,pypi,exe,github-gitee,all}` and `--strict` (WARN treated as FAIL).
-- `scripts/verify-release.mjs` (170 lines): post-publish verifier with 9 channels (npm registry version, GitHub Release exists for tag, Gitee tag exists, GitHub topics, GitHub description, awesome-dsh-plugin yml entry merged, dsh-market submission Issue, GitHub Actions CI pass on tag commit, working tree clean).
+- **Pre-release workflow** (REFERENCE.md section K): ship beta/rc first, promote later. Reduces blast radius of bad `latest` releases.
+- `scripts/bootstrap-release.{ps1,sh}`: new flags `--pre-release <tag>` (`beta` / `rc` / `alpha`), `--pre-release-bump <n>` (iterate counter), `--promote-from-beta` (move dist-tag from `beta`/`rc` to `latest` without version bump).
+- `scripts/release-exe.{ps1,sh}`: new flag `-Prerelease` / `--prerelease` for GitHub Pre-release mark on exe releases.
+- `scripts/release-doctor.mjs`: new check `npm: pre-release version uses non-latest dist-tag` (warns if `0.5.0-beta.1` is being published under dist-tag=latest).
+- `scripts/verify-release.mjs`: new channel `npm: dist-tag matches version type` (confirms the version is on the right tag after publish).
+- `REFERENCE.md` section K (96 lines): pre-release / dist-tag strategy with the two-step publish flow, manual dist-tag commands, recovery playbook for bad `latest` releases.
+- `SKILL.md` Workflow step 2: pre-release first, then promote (kept under 100 lines: 60 lines).
+- `README.md` + `README.zh.md`: new `Pre-release strategy` section with version/dist-tag table.
+
+### Published
+- npm `@eternalnight/publish-kit@0.5.0-beta.1` on dist-tag=`beta` (latest stays at 0.4.0).
+- git tag `v0.5.0-beta.1` pushed to GitHub + Gitee.
+- GitHub Release `v0.5.0-beta.1` marked Pre-release.
+
+## [0.4.0] - 2026-08-28
 - `scripts/README.md` (85 lines): usage docs for all 4 scripts + recommended local dev loop.
 - `.github/dependabot.yml`: weekly auto-PR for GitHub Actions / npm / Docker dependencies with grouped minor+patch updates.
 - `.github/ISSUE_TEMPLATE/release_question.yml`: new release-question template added to existing bug_report + feature_request.
