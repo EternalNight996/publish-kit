@@ -461,7 +461,9 @@ publish-kit/
 
 **v0.3.0（当前）：** 仓库治理——`.github/ISSUE_TEMPLATE/{bug_report,feature_request,release_question}.yml`、`.github/PULL_REQUEST_TEMPLATE.md`、`.github/CONTRIBUTING.md`、`.github/SECURITY.md`、`.github/CODE_OF_CONDUCT.md`、`.github/FUNDING.yml`；CI workflow（`.github/workflows/ci.yml`，4 jobs：validate-skill / check-readme-links / check-package / check-markdown-toc）；`assets/social-preview.png`（1280×640）。
 
-**v0.5.0-beta.1（当前）：** **预发布工作流**——REFERENCE.md K 节 + bootstrap-release.{ps1,sh} 加 `--pre-release beta` / `--promote-from-beta` 标志；release-exe.{ps1,sh} 加 `-Prerelease` 标志；release-doctor 预发布检查；verify-release dist-tag 渠道；SKILL.md Workflow 第 2 步 + README EN/ZH 预发布策略节；**npm `@eternalnight/publish-kit@0.5.0-beta.1` 在 dist-tag=`beta`**；git tag `v0.5.0-beta.1` 推 GitHub + Gitee；GitHub Release 标 Pre-release。
+**v0.5.0（当前）：** **postinstall 加固**——`scripts/postinstall.js` 现在能正确处理 5 个 skill 根（`~/.agents`、 `~/.claude`、 `~/.codex`、 `~/.gemini`、 `~/.dsh`）下已存在的 Windows 目录 junction。原本的脚本会 `unlink + symlink('junction')`，在同一源 inode 已在其他路径被链接时抛 EEXIST 警告，在任何已用 0.4.0 旧版装过 skill 的机器上都会阻塞 `dsh plugin --profile web add`。新行为：识别现存的链接，把 realpath 与本地打包源对比，命中就保留；要重写设置 `PUBLISH_KIT_FORCE=1`；终端摘要分开报告 `installed in N location(s)` 和 `kept M existing link(s)`。**npm `@eternalnight/publish-kit@0.5.0` 在 dist-tag=`latest`**。撤销 0.5.0-beta.1（npm deprecate、两端 tag 删除）。
+
+**v0.5.0-beta.1（已撤销，已被取代）：** **预发布工作流**——REFERENCE.md K 节 + bootstrap-release.{ps1,sh} 加 `--pre-release beta` / `--promote-from-beta` 标志；release-exe.{ps1,sh} 加 `-Prerelease` 标志；release-doctor 预发布检查；verify-release dist-tag 渠道；SKILL.md Workflow 第 2 步 + README EN/ZH 预发布策略节。撤销原因：tag 指向 CHANGELOG/docs 提交，遗漏后续 postinstall junction 修复（该修复作为此 stable 的首条修复随同发布）。
 
 **v0.4.0：** 脚本——`release-doctor.mjs`（12 项起飞前检查：git / npm / DSH 市场 / lockfile / 文档 / 远端 / GH RP / .bat）、`verify-release.mjs`（9 渠道发布后验证器）、`scripts/README.md`（使用文档）；`.github/dependabot.yml`（每周 GitHub Actions + npm + Docker 自动 PR）；仓库设置（`delete_branch_on_merge` + Discussions）；v0.2.0 / v0.2.1 / v0.3.0 / v0.4.0 的 GitHub Releases；PR #3554 冲突解决（现 `MERGEABLE`）；**Gitee mirror 完成**（`https://gitee.com/eternalnight996/publish-kit` 已有 main + 9 tags）；**npm `@eternalnight/publish-kit@0.4.0` 已发布**（20 文件 / 56.6 KB / 签名）。
 
@@ -475,7 +477,8 @@ publish-kit/
 
 ## 📦 发布记录
 
-- **v0.5.0-beta.1** (2026-08-29)：预发布工作流（REFERENCE.md K 节 + bootstrap-release prerelease/promote 标志 + release-exe prerelease 标志 + release-doctor + verify-release dist-tag 检查 + SKILL + README EN/ZH）。npm `@eternalnight/publish-kit@0.5.0-beta.1` 在 dist-tag=`beta`。GitHub Pre-release。
+- **v0.5.0** (2026-09-03)：postinstall 加固（`scripts/postinstall.js` 保留已存在 junction、`EEXIST` 不再盲目 unlink、识别 `PUBLISH_KIT_FORCE=1`、分别报 `installed N` 与 `kept M`）。npm `@eternalnight/publish-kit@0.5.0` 升至 dist-tag=`latest`。撤销 0.5.0-beta.1（npm deprecate + 两端 tag 删除）。
+- **v0.5.0-beta.1** (2026-08-29，已撤销)：预发布工作流（REFERENCE.md K 节 + bootstrap-release prerelease/promote 标志 + release-exe prerelease 标志 + release-doctor + verify-release dist-tag 检查 + SKILL + README EN/ZH）。npm `@eternalnight/publish-kit@0.5.0-beta.1` 在 dist-tag=`beta` 已 deprecate。GitHub Pre-release 已删除。
 - **v0.4.0** (2026-08-28)：`release-doctor.mjs`（12 项起飞前检查）+ `verify-release.mjs`（9 渠道发布后验证器）+ `scripts/README.md`；`.github/dependabot.yml`；仓库设置（`delete_branch_on_merge` + Discussions）；PR #3554 冲突解决；**Gitee mirror 完成**；**npm `@eternalnight/publish-kit@0.4.0` 已发布**。
 - **v0.3.0** (2026-08-28)：仓库治理——issue 模板（bug/feature/question）、PR 模板、CONTRIBUTING、SECURITY、CODE_OF_CONDUCT、FUNDING；CI workflow（4 jobs）；social-preview.png（1280×640）。
 - **v0.2.1** (2026-08-28)：文档清理——删掉双语 README 重复的旧「安装」节；标记 Roadmap npm wrapper 条目为已完成。

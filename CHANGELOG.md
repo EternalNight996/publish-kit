@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-09-03
+
+### Fixed
+- `scripts/postinstall.js`: when the target skill root already has a directory junction (Windows) pointing to **any** publish-kit source, the script no longer attempts `unlinkSync + symlinkSync` (which previously threw `EEXIST` warnings on Windows when the same source inode was reused). New behaviour: detect the junction, compare `realpath` against the locally bundled skill source, and keep the existing junction unless `PUBLISH_KIT_FORCE=1` is set. Solves the `dsh plugin --profile web add @eternalnight/publish-kit` ERR_PNPM_IGNORED_BUILDS flow on systems where the user already has links installed by an older `0.4.0` copy.
+- `scripts/postinstall.js`: distinguish true symlinks from Windows directory junctions (Reparse Point) using the existing `lstat` Reparse Point attribute (0x800) instead of relying on `stat.isSymbolicLink()` which is reported `false` for junctions.
+
+### Added
+- `scripts/postinstall.js`: environment variables to control behaviour:
+  - `PUBLISH_KIT_FORCE=1` — re-create every skill root link even if an existing one points to this or another source.
+  - `npm_config_force=true` is also honoured for compatibility with npm's own `--force` flag.
+- `scripts/postinstall.js`: terminal summary now reports both `installed in N location(s)` and `kept M existing link(s); set PUBLISH_KIT_FORCE=1 to overwrite` so install logs are unambiguous about what happened.
+
+### Changed
+- `0.5.0-beta.1` was withdrawn (git tag deleted on both remotes, npm deprecated). Reason: its tag pointed at the CHANGELOG/docs commit and was missing the follow-up Windows `where.exe` fix (which now ships as the previous-line fix in this stable). Installations already pinned to `0.5.0-beta.1` will see a deprecation warning and should upgrade to `0.5.0`.
+
+### Published
+- npm `@eternalnight/publish-kit@0.5.0` on dist-tag=`latest`.
+- git tag `v0.5.0` pushed to GitHub + Gitee.
+
 ## [0.1.3] - 2026-08-28
 
 ### Added
