@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] - 2026-09-06
+
+### Fixed
+- `package.json`: `dsh.bundle.patch` pointed at `cordis.patch.yml`, which is a **non-loader** catalog marker for dsh-plugin-marketplace (`client:`/`metadata:`/`installPaths:`) rather than a dsh loader patch file. dsh parses each profile bundle's patch and requires a top-level YAML array, so any profile that had `@eternalnight/publish-kit` in its `bundles` failed loudly with `must be a top-level YAML array of loader patch entries` (the dsh-desktop "no picture / won't boot" symptom). publish-kit only ships a CLI + skill bundle and injects no runtime rows, so the fix is a dedicated loader patch that disables the layer: new `dsh-bundle-patch.yml` containing an explicit top-level `[]` (dsh fails boot on an empty/comments-only file, so `[]` is the sanctioned way to opt out), with `dsh.bundle.patch` redirected to it. `cordis.patch.yml` remains in place purely for marketplace cataloging.
+
+### Deprecated
+- `@eternalnight/publish-kit@0.5.1`: superseded by 0.5.2. 0.5.1 declared `dsh.bundle.patch: ./cordis.patch.yml` (a non-loader marketplace marker), so any profile putting it in `bundles` failed loud on boot. Users on 0.5.1 (especially via `dsh plugin` profile bundles) should upgrade to 0.5.2. Dist-tag `latest` now points at 0.5.2.
+
 ## [0.5.1] - 2026-09-06
 
 ### Fixed
