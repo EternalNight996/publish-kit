@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-09-06
+
+### Fixed
+- `scripts/postinstall.js`: when the target skill root already contains a **real directory** (not a symlink, not a Windows junction) with the same name, the script previously logged `already exists (not a link); skipping` and never honoured `PUBLISH_KIT_FORCE=1`. This was the root cause of DSH boot failure "the declared entry artifact is missing (source-only checkout or blocked build) -- the next boot would fail" on systems where an older install (or a corrupted copy) left a non-link directory at `<root>/publish-kit/` (e.g. a stale GBK-encoded SKILL.md that the dsh-skill-filesystem provider rejects during catalog validation). New behaviour: with `PUBLISH_KIT_FORCE=1`, the offending directory is removed with `fs.rmSync({ recursive: true, force: true })` and replaced with the canonical junction; without FORCE, the skip message now also tells the user how to opt in. Non-FORCE path never touches existing real directories, so user data in `<root>/publish-kit/` is preserved.
+
+### Deprecated
+- `@eternalnight/publish-kit@0.5.0`: superseded by 0.5.1. Users on 0.5.0 should upgrade; 0.5.0 may be unpublished from the registry (npm 72h policy permitting).
+
 ## [0.5.0] - 2026-09-03
 
 ### Fixed

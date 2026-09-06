@@ -60,9 +60,22 @@ for (const dir of homes) {
                     continue;
                 }
             } else {
-                // A real directory with the same name exists; skip (don't clobber).
-                console.log('[publish-kit] ' + dest + ' already exists (not a link); skipping');
-                continue;
+                // A real directory with the same name exists. Never clobber unless FORCE is set,
+                // because that directory may contain user data. With FORCE, remove the directory
+                // wholesale (this is the path that heals a corrupt / mojibake / source-only copy
+                // that DSH would otherwise fail to boot from).
+                if (FORCE) {
+                    try { fs.rmSync(dest, { recursive: true, force: true }); }
+                    catch (err) {
+                        console.warn('[publish-kit] FORCE: failed to remove ' + dest + ': ' + err.message);
+                        skipped.push(dest);
+                        continue;
+                    }
+                    // fall through to mkdirSync + symlinkSync below
+                } else {
+                    console.log('[publish-kit] ' + dest + ' already exists (not a link); skipping (set PUBLISH_KIT_FORCE=1 to overwrite)');
+                    continue;
+                }
             }
         }
         fs.mkdirSync(dir, { recursive: true });
