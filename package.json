@@ -56,6 +56,7 @@
                   ".agents/skills/publish-kit/EXAMPLES.md",
                   "assets/readme-banner.svg",
                   "cordis.patch.yml",
+                  "dsh-bundle-patch.yml",
                   "scripts/postinstall.js"
               ],
     "scripts":  {
@@ -69,7 +70,7 @@
                                "platform":  "web"
                            },
                 "bundle":  {
-                               "patch":  "./cordis.patch.yml"
+                               "patch":  "./dsh-bundle-patch.yml"
                            },
                 "marketplace":  {
                                     "profiles":  [

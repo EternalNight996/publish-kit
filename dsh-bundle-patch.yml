@@ -1,0 +1,11 @@
+# agent-teams ✗ — 这是 publish-kit 的 dsh loader 补丁层：显式空数组。
+
+# publish-kit 仅由 CLI 与 skill bundle（.agents/skills/publish-kit/）组成，不向 web
+# profile 注入任何运行时行。但 dsh 加载一个 bundle 时会读取并解析其 dsh.bundle.patch
+# 指向的文件，且要求顶层必须是 loader patch 数组：
+#   * 空文件或纯注释文件会让启动失败（dsh-app-boot：disable the layer with []）;
+#   * 顶层非数组（如 cordis.patch.yml 给 marketplace 用的目录标记对象）会抛
+#     "must be a top-level YAML array of loader patch entries"，导致 profile fail-loud。
+# 因此本文件显式为顶层空数组 [ ] —— 无插入动作、不崩。若未来想向 web 表面注入，
+# 在此改为 `- insert:` / `- replace:` 等条目即可。
+[]
