@@ -26,7 +26,7 @@ jobs:
       - name: Verify SKILL.md frontmatter
         run: |
           file=.agents/skills/publish-kit/SKILL.md
-          head -n 1 "$file" | grep - -q '^---$' || { echo "::error::missing frontmatter opening"; exit 1; }
+          head -n 1 "$file" | grep -q '^---$' || { echo "::error::missing frontmatter opening"; exit 1; }
           closing=$(awk '/^---$/{c++} c==2{print NR; exit}' "$file") || { echo "::error::missing frontmatter closing"; exit 1; }
           if [ -z "$closing" ]; then
             echo "::error::frontmatter never closed"
