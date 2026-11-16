@@ -9,7 +9,7 @@
     {
       "name": "publish-kit",
       "description": "Release playbook covering npm / GitHub / Gitee / DSH marketplace / cargo / PyPI / PyInstaller multi-channel publish, bilingual README, git tag SOP, and npm package slimming.",
-      "version": "0.1.0",
+      "version": "0.5.3",
       "source": "./",
       "author": {
         "name": "EternalNight996",

@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.3] - 2026-11-16
+
+### Added
+- `RELEASE-WORKFLOW.md` — release SOP distilled from memory-eternal's `scripts/release.mjs` + CI: 12 ordered stages with commands, 11 hard gates and their error strings, the 11-file version manifest with a drift-check one-liner, three-channel proof-of-success commands, failure-mode table, release-notes extraction rules, and the "code wins over docs" correction table.
+- `README-DESIGN.md` — product README spec distilled from memory-eternal's bilingual READMEs: 19-section order with measured line ranges and length budgets, head/badge template, bilingual split rules + alignment guard, nine anti-patterns, fill-in skeleton, and acceptance commands (each verified against the sample repo).
+- `PLUGIN-CENTER-PR.md` — DSH plugin-center listing and promotion playbook: 7-link discovery chain with per-link proof-of-success (including the "nightly probe only, push builds do not probe" rule), PR/Issue target list with required fields and three past rejection causes, promo asset specs (screenshot dimensions, `screenshots.json` rules, GIF ceiling), announcement templates + 8 real title patterns, five-dimension scoring levers, channel table, and red lines.
+- `SKILL.md` — Workflow steps 4-6 and the See also table now route to the three new playbooks; `README.md` / `README.zh.md` file trees updated.
+
+### Fixed
+- `TEMPLATE.md`: the `CHANGELOG.md` link pointed at `./CHANGELOG.md` (inside the skill directory, where no such file exists), failing the `check-readme-links` CI job; now `../../../CHANGELOG.md`.
+- `.claude-plugin/plugin.json` / `.claude-plugin/marketplace.json`: version synced to the package version instead of the stale `0.1.0`.
+- `.github/workflows/ci.yml`: `check-readme-links` now also scans `RELEASE-WORKFLOW.md` and `PLUGIN-CENTER-PR.md` (`README-DESIGN.md` stays excluded because its embedded README template links are relative to the *target* repo).
+
+### Published
+- npm `@eternalnight/publish-kit@0.5.3` on dist-tag=`latest`.
+
 ## [0.5.2] - 2026-09-06
 
 ### Fixed

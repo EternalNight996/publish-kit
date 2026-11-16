@@ -152,7 +152,7 @@ Filename split: README.md (zh) + README.en.md (en). Both go in the npm files whi
 
 ## 更新日志 / Changelog
 
-See [CHANGELOG.md](./CHANGELOG.md).
+See [CHANGELOG.md](../../../CHANGELOG.md).
 
 ## License
 

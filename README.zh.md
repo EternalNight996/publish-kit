@@ -413,7 +413,10 @@ publish-kit/
     ├── INSTALL.md         # 4 种安装方式
     ├── DSH-DEPLOY.md      # DSH 专项部署
     ├── COMPATIBILITY.md   # 平台 + frontmatter 矩阵
-    └── EXAMPLES.md        # 实战 transcript
+    ├── EXAMPLES.md        # 实战 transcript
+    ├── RELEASE-WORKFLOW.md # 12 阶段发布 SOP、闸门、版本漂移检查、失败模式表
+    ├── README-DESIGN.md   # 19 节 README 规范、双语守卫、填空骨架
+    └── PLUGIN-CENTER-PR.md # 收录链路、PR 对象清单、宣传素材、公告模板
 ```
 
 ---
@@ -461,7 +464,9 @@ publish-kit/
 
 **v0.3.0（当前）：** 仓库治理——`.github/ISSUE_TEMPLATE/{bug_report,feature_request,release_question}.yml`、`.github/PULL_REQUEST_TEMPLATE.md`、`.github/CONTRIBUTING.md`、`.github/SECURITY.md`、`.github/CODE_OF_CONDUCT.md`、`.github/FUNDING.yml`；CI workflow（`.github/workflows/ci.yml`，4 jobs：validate-skill / check-readme-links / check-package / check-markdown-toc）；`assets/social-preview.png`（1280×640）。
 
-**v0.5.0（当前）：** **postinstall 加固**——`scripts/postinstall.js` 现在能正确处理 5 个 skill 根（`~/.agents`、 `~/.claude`、 `~/.codex`、 `~/.gemini`、 `~/.dsh`）下已存在的 Windows 目录 junction。原本的脚本会 `unlink + symlink('junction')`，在同一源 inode 已在其他路径被链接时抛 EEXIST 警告，在任何已用 0.4.0 旧版装过 skill 的机器上都会阻塞 `dsh plugin --profile web add`。新行为：识别现存的链接，把 realpath 与本地打包源对比，命中就保留；要重写设置 `PUBLISH_KIT_FORCE=1`；终端摘要分开报告 `installed in N location(s)` 和 `kept M existing link(s)`。**npm `@eternalnight/publish-kit@0.5.0` 在 dist-tag=`latest`**。撤销 0.5.0-beta.1（npm deprecate、两端 tag 删除）。
+**v0.5.3（当前）：** **三份蒸馏作战手册**——`RELEASE-WORKFLOW.md`（12 阶段 SOP + 11 道硬闸门 + 11 处版本清单与漂移检查 + 三端同步判据 + 失败模式表）、`README-DESIGN.md`（19 节 README 规范：实测行区间与长度预算、双语守卫、反模式、填空骨架、验收命令）、`PLUGIN-CENTER-PR.md`（7 环收录链路、PR/Issue 对象清单、宣传素材规格、公告模板、五维评分杠杆）。另修：`TEMPLATE.md` 断裂内部链、Claude 插件清单版本回同步、`check-readme-links` 覆盖扩展。**npm `@eternalnight/publish-kit@0.5.3` 在 dist-tag=`latest`**。
+
+**v0.5.0：** **postinstall 加固**——`scripts/postinstall.js` 现在能正确处理 5 个 skill 根（`~/.agents`、 `~/.claude`、 `~/.codex`、 `~/.gemini`、 `~/.dsh`）下已存在的 Windows 目录 junction。原本的脚本会 `unlink + symlink('junction')`，在同一源 inode 已在其他路径被链接时抛 EEXIST 警告，在任何已用 0.4.0 旧版装过 skill 的机器上都会阻塞 `dsh plugin --profile web add`。新行为：识别现存的链接，把 realpath 与本地打包源对比，命中就保留；要重写设置 `PUBLISH_KIT_FORCE=1`；终端摘要分开报告 `installed in N location(s)` 和 `kept M existing link(s)`。**npm `@eternalnight/publish-kit@0.5.0` 在 dist-tag=`latest`**。撤销 0.5.0-beta.1（npm deprecate、两端 tag 删除）。
 
 **v0.5.0-beta.1（已撤销，已被取代）：** **预发布工作流**——REFERENCE.md K 节 + bootstrap-release.{ps1,sh} 加 `--pre-release beta` / `--promote-from-beta` 标志；release-exe.{ps1,sh} 加 `-Prerelease` 标志；release-doctor 预发布检查；verify-release dist-tag 渠道；SKILL.md Workflow 第 2 步 + README EN/ZH 预发布策略节。撤销原因：tag 指向 CHANGELOG/docs 提交，遗漏后续 postinstall junction 修复（该修复作为此 stable 的首条修复随同发布）。
 
@@ -477,6 +482,9 @@ publish-kit/
 
 ## 📦 发布记录
 
+- **v0.5.3** (2026-11-16)：三份蒸馏作战手册 `RELEASE-WORKFLOW.md` / `README-DESIGN.md` / `PLUGIN-CENTER-PR.md`，接入 `SKILL.md` + `package.json#files` + CI；修 `TEMPLATE.md` 断裂内部链；`.claude-plugin` 清单版本回同步。npm `@eternalnight/publish-kit@0.5.3` 在 dist-tag=`latest`。
+- **v0.5.2** (2026-09-06)：`dsh.bundle.patch` 改指 `dsh-bundle-patch.yml`（显式 `[]` 空补丁，作为 loader 退出声明）；`cordis.patch.yml` 仅留作市场目录标记。修「把 bundle 放进 `bundles` 就开不了机」的 fail-loud。
+- **v0.5.1** (2026-09-06)：`postinstall` 在 `PUBLISH_KIT_FORCE=1` 下强制修复 skill 根下的真实目录（非链接），消除 DSH「declared entry artifact missing」启动失败；非 FORCE 路径仍保留用户数据。
 - **v0.5.0** (2026-09-03)：postinstall 加固（`scripts/postinstall.js` 保留已存在 junction、`EEXIST` 不再盲目 unlink、识别 `PUBLISH_KIT_FORCE=1`、分别报 `installed N` 与 `kept M`）。npm `@eternalnight/publish-kit@0.5.0` 升至 dist-tag=`latest`。撤销 0.5.0-beta.1（npm deprecate + 两端 tag 删除）。
 - **v0.5.0-beta.1** (2026-08-29，已撤销)：预发布工作流（REFERENCE.md K 节 + bootstrap-release prerelease/promote 标志 + release-exe prerelease 标志 + release-doctor + verify-release dist-tag 检查 + SKILL + README EN/ZH）。npm `@eternalnight/publish-kit@0.5.0-beta.1` 在 dist-tag=`beta` 已 deprecate。GitHub Pre-release 已删除。
 - **v0.4.0** (2026-08-28)：`release-doctor.mjs`（12 项起飞前检查）+ `verify-release.mjs`（9 渠道发布后验证器）+ `scripts/README.md`；`.github/dependabot.yml`；仓库设置（`delete_branch_on_merge` + Discussions）；PR #3554 冲突解决；**Gitee mirror 完成**；**npm `@eternalnight/publish-kit@0.4.0` 已发布**。

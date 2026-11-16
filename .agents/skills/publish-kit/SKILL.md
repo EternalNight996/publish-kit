@@ -26,9 +26,9 @@ Every channel is an independent silo. npm knows a version, git knows a commit, m
 1. Classify the release: npm package, DSH plugin, git-only project, cargo crate, PyPI/exe artifact. See REFERENCE for per-track steps.
 2. **Pre-release first, then promote.** For non-trivial changes: publish a pre-release (`./scripts/bootstrap-release.sh patch --pre-release beta`) to npm `next` dist-tag + GitHub Pre-release; iterate (`--pre-release-bump 2/3/...`); once stable, promote (`--promote-from-beta`) to `latest`. See REFERENCE section K.
 3. Pre-flight: registry version check (`npm view <pkg> version`), lock npx versions, confirm files whitelist separates runtime assets from showcase assets.
-4. README gate: bilingual split files, banner/badges/install/features/changelog order, GIF under 10 MB. See REFERENCE section F.
-5. Publish in the Quick start order; never reorder (tag before push, verify before push tags).
-6. Post-publish: marketplace submissions (section B), RP fields via GitHub API (section A), smoke-test install.
+4. README gate: bilingual split files, banner/badges/install/features/changelog order, GIF under 10 MB. For a full 19-section product README, use the distilled spec in README-DESIGN.md (section order, head template, bilingual guards, anti-patterns, fill-in skeleton, acceptance commands). See also REFERENCE section F.
+5. Publish in the Quick start order; never reorder (tag before push, verify before push tags). The battle-tested stage-by-stage version with gates, the 11-file version manifest, the three-channel proof-of-success commands and the failure table is RELEASE-WORKFLOW.md.
+6. Post-publish: marketplace submissions (section B), RP fields via GitHub API (section A), smoke-test install. For the discovery chain (npm keywords / GitHub topic / `screenshots.json` → nightly probe → market card), the PR/Issue target list, promo assets and release-announcement templates, use PLUGIN-CENTER-PR.md.
 
 ## Anti-patterns
 
@@ -53,6 +53,9 @@ RIGHT: resolve the real hash from `git log` messages, tag it, verify the subject
 | [REFERENCE.md](REFERENCE.md) | dense facts per track: marketplace table, token handling, semver ranges, slimming, cargo/PyPI, troubleshooting |
 | [EXAMPLES.md](EXAMPLES.md) | end-to-end worked transcripts: this skill's own v0.1.0 release and a full DSH plugin npm flow |
 | [TEMPLATE.md](TEMPLATE.md) | copy-paste skeletons: package.json, bilingual README, marketplace yml, publish.bat, GitHub Actions release, Cargo.toml, pyproject.toml |
+| [RELEASE-WORKFLOW.md](RELEASE-WORKFLOW.md) | shipping a real release: 12 ordered stages with commands, hard gates and their error strings, the 11-file version manifest + drift check, three-channel proof-of-success, failure-mode table, release-notes extraction rules |
+| [README-DESIGN.md](README-DESIGN.md) | writing or restructuring a product README: 19-section order with length budgets, head/badge template, bilingual split rules + alignment guard, anti-patterns, fill-in skeleton, acceptance commands |
+| [PLUGIN-CENTER-PR.md](PLUGIN-CENTER-PR.md) | getting listed and seen: 7-link discovery chain, PR/Issue target list with required fields, promo asset specs, announcement templates + title patterns, five-dimension scoring levers, channel table, red lines |
 | [INSTALL.md](INSTALL.md) | install this skill into DSH, Claude Code, Codex, Gemini, or Cursor |
 | [DSH-DEPLOY.md](DSH-DEPLOY.md) | DSH-specific deployment: where the runtime finds skills, watch semantics, ranks, distribution channels |
 | [COMPATIBILITY.md](COMPATIBILITY.md) | platform + frontmatter matrix, body-format limits |

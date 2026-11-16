@@ -1,6 +1,6 @@
 {
     "name": "@eternalnight/publish-kit",
-    "version": "0.5.2",
+    "version": "0.5.3",
     "description": "Release playbook for AI agents. npm-installable CLI + DSH plugin + skill bundle. Covers npm, GitHub+Gitee dual remote, DSH marketplace, cargo crates.io, PyPI, PyInstaller exe, Go single-binary, Rust single-binary, Electron/Tauri desktop. Bilingual EN/ZH.",
     "keywords": [
         "publishing",
@@ -54,6 +54,9 @@
         ".agents/skills/publish-kit/DSH-DEPLOY.md",
         ".agents/skills/publish-kit/COMPATIBILITY.md",
         ".agents/skills/publish-kit/EXAMPLES.md",
+        ".agents/skills/publish-kit/RELEASE-WORKFLOW.md",
+        ".agents/skills/publish-kit/README-DESIGN.md",
+        ".agents/skills/publish-kit/PLUGIN-CENTER-PR.md",
         "assets/readme-banner.svg",
         "cordis.patch.yml",
         "dsh-bundle-patch.yml",

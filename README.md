@@ -410,7 +410,10 @@ publish-kit/
     ├── INSTALL.md         # 4 install paths
     ├── DSH-DEPLOY.md      # DSH-specific deployment
     ├── COMPATIBILITY.md   # platform + frontmatter matrix
-    └── EXAMPLES.md        # worked transcripts
+    ├── EXAMPLES.md        # worked transcripts
+    ├── RELEASE-WORKFLOW.md # 12-stage release SOP, gates, drift check, failure table
+    ├── README-DESIGN.md   # 19-section README spec, bilingual guards, skeleton
+    └── PLUGIN-CENTER-PR.md # discovery chain, PR targets, promo assets, announcement templates
 ```
 
 ---
@@ -458,7 +461,9 @@ For any non-trivial change, publish a pre-release first, validate, then promote 
 
 **v0.3.0 (current):** repo governance — `.github/ISSUE_TEMPLATE/{bug_report,feature_request,release_question}.yml`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/CONTRIBUTING.md`, `.github/SECURITY.md`, `.github/CODE_OF_CONDUCT.md`, `.github/FUNDING.yml`; CI workflow (`.github/workflows/ci.yml`, 4 jobs: validate-skill / check-readme-links / check-package / check-markdown-toc); `assets/social-preview.png` (1280x640).
 
-**v0.5.0 (current):** **postinstall hardening** — `scripts/postinstall.js` now correctly handles pre-existing Windows directory junctions at the 5 skill roots (`~/.agents`, `~/.claude`, `~/.codex`, `~/.gemini`, `~/.dsh`). Previously the script would `unlink + symlink('junction')` and throw EEXIST warnings on systems where the same source inode was already linked from another path, blocking `dsh plugin --profile web add` for any user who had the skill installed by the 0.4.0 copy. New behaviour: detect the existing link, compare realpath against the locally bundled source, keep it; honour `PUBLISH_KIT_FORCE=1` to overwrite; report `installed in N location(s)` vs `kept M existing link(s)` separately. **npm `@eternalnight/publish-kit@0.5.0` on dist-tag=`latest`**. Withdrew `0.5.0-beta.1` (npm deprecated, git tag deleted on both remotes).
+**v0.5.3 (current):** **three distilled playbooks** — `RELEASE-WORKFLOW.md` (12-stage SOP with 11 hard gates, the 11-file version manifest + drift check, three-channel proof-of-success, failure table), `README-DESIGN.md` (19-section README spec with measured budgets, bilingual guards, anti-patterns, fill-in skeleton, acceptance commands), `PLUGIN-CENTER-PR.md` (7-link discovery chain, PR/Issue targets, promo assets, announcement templates, five-dimension scoring levers). Plus: `TEMPLATE.md` broken CHANGELOG link fixed, Claude plugin manifests re-synced to the package version, `check-readme-links` extended. **npm `@eternalnight/publish-kit@0.5.3` on dist-tag=`latest`**.
+
+**v0.5.0:** **postinstall hardening** — `scripts/postinstall.js` now correctly handles pre-existing Windows directory junctions at the 5 skill roots (`~/.agents`, `~/.claude`, `~/.codex`, `~/.gemini`, `~/.dsh`). Previously the script would `unlink + symlink('junction')` and throw EEXIST warnings on systems where the same source inode was already linked from another path, blocking `dsh plugin --profile web add` for any user who had the skill installed by the 0.4.0 copy. New behaviour: detect the existing link, compare realpath against the locally bundled source, keep it; honour `PUBLISH_KIT_FORCE=1` to overwrite; report `installed in N location(s)` vs `kept M existing link(s)` separately. **npm `@eternalnight/publish-kit@0.5.0` on dist-tag=`latest`**. Withdrew `0.5.0-beta.1` (npm deprecated, git tag deleted on both remotes).
 
 **v0.5.0-beta.1 (superseded — withdrawn):** **Pre-release workflow** — REFERENCE.md K section + bootstrap-release.{ps1,sh} with `--pre-release beta` / `--promote-from-beta` flags; release-exe.{ps1,sh} with `-Prerelease` flag; release-doctor prerelease check; verify-release dist-tag channel; SKILL.md Workflow step 2 + README EN/ZH Pre-release strategy section. Withdrawn because the tag pointed at the CHANGELOG/docs commit and missed the post-install junction fix that ships in v0.5.0.
 
@@ -474,6 +479,9 @@ For any non-trivial change, publish a pre-release first, validate, then promote 
 
 ## 📦 Release log
 
+- **v0.5.3** (2026-11-16): three distilled playbooks — `RELEASE-WORKFLOW.md` / `README-DESIGN.md` / `PLUGIN-CENTER-PR.md` — wired into `SKILL.md` + `package.json#files` + CI; `TEMPLATE.md` internal link fixed; `.claude-plugin` manifests version-synced. npm `@eternalnight/publish-kit@0.5.3` on dist-tag=`latest`.
+- **v0.5.2** (2026-09-06): `dsh.bundle.patch` moved to `dsh-bundle-patch.yml` (explicit `[]` loader opt-out); `cordis.patch.yml` stays as the marketplace catalog marker only. Fixes profiles that put the bundle in `bundles` and failed loudly on boot.
+- **v0.5.1** (2026-09-06): `postinstall` FORCE-heals a real (non-link) directory at the skill root, removing the DSH "declared entry artifact missing" boot failure; the non-FORCE path still preserves user data.
 - **v0.5.0** (2026-09-03): postinstall hardening (`scripts/postinstall.js` keeps pre-existing junctions, detects `EEXIST` correctly, honours `PUBLISH_KIT_FORCE=1`, separates `installed N` vs `kept M`). npm `@eternalnight/publish-kit@0.5.0` promoted to dist-tag=`latest`. Withdraws 0.5.0-beta.1 (npm deprecate + tag delete on both remotes).
 - **v0.5.0-beta.1** (2026-08-29, withdrawn): pre-release workflow (REFERENCE.md K + bootstrap-release prerelease/promote flags + release-exe prerelease flag + release-doctor + verify-release dist-tag check + SKILL + README EN/ZH). npm `@eternalnight/publish-kit@0.5.0-beta.1` deprecated on dist-tag=`beta`. GitHub Pre-release removed.
 - **v0.4.0** (2026-08-28): `release-doctor.mjs` (12 pre-flight checks) + `verify-release.mjs` (9-channel post-publish verifier) + `scripts/README.md`; `.github/dependabot.yml`; repo settings (delete_branch_on_merge + Discussions); PR #3554 conflicts resolved; **Gitee mirror complete**; **npm `@eternalnight/publish-kit@0.4.0` published**.
