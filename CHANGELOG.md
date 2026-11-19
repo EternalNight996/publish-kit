@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-11-19
+
+**Stable release.** Promoted from `v0.6.0-beta.1` after the owner's explicit approval ("发布正式版本", 2026-11-19). Content is identical to the beta plus this entry; `npm dist-tag latest` moves from `0.5.3` to `0.6.0`.
+
+### What ships
+
+- **Release grades + owner approval gate** — `RELEASE-GRADES.md`: alpha / beta / rc / release / patch, each with its version shape, dist-tag, GitHub Release flag and who may ship it. `latest` carries only release and patch; a stable version requires approval (in-conversation, `PUBLISH_KIT_APPROVED=1`, or `--approved-by=<owner>`). Without it the release scripts exit `2` and print the equivalent beta command.
+- **Grade-aware release scripts** — `bootstrap-release.{sh,ps1}` take `--grade` / `-Grade`, `--grade-bump` / `-GradeBump`, `--approved-by` / `-ApprovedBy`; omitting a grade defaults to beta; promote publishes the stable version instead of pointing `latest` at a prerelease string; `grade=patch` forces a patch bump.
+- **`npm test` = `scripts/self-check.mjs`** — package fields, SKILL.md house format (≤100 lines, frontmatter, `Use when`), manifest version sync, internal link resolution, CHANGELOG entry for the current version, and tarball whitelist coverage. Same gate the release scripts run and CI runs.
+- **Shortcuts** — `npm run release:alpha` / `release:beta` / `release:rc` / `release:dry`.
+- **SKILL.md "Grade gate"** (read before any publish command), `REFERENCE.md` K.0 summary, README section "Release grades and the approval gate" in both languages.
+
+### Fixed in this line
+
+- `bootstrap-release.ps1` runs on Windows PowerShell 5.1 (no `||`, optional `-BumpType`, native stderr no longer aborts the run, explicit `$LASTEXITCODE` checks).
+- `--dry-run` / `-DryRun` restores `package.json` byte-for-byte and BOM-free; a BOM previously broke `JSON.parse`.
+- Both scripts accept `--flag value` and `--flag=value`.
+
+### Approval record
+
+- Request: "发布正式版本" (owner, in-conversation, 2026-11-19).
+- Gate mode used: approval by explicit instruction + `--approved-by=YG` in the release command.
+
+### Published
+
+- git tag `v0.6.0` pushed to origin (GitHub) and gitee; GitHub Release (production) and Gitee Release created.
+- **npm pending:** `npm publish --tag latest` is still refused with `403 … Your account has been temporarily suspended due to a recent security-sensitive action`, so `dist-tags.latest` remains **0.5.3** even though `0.6.0` is the approved version. Until the account block clears, install the stable build from git:
+  `npx @deepseek-ai/dsh plugin --profile web add github:EternalNight996/publish-kit#v0.6.0`
+- Recovery (one command, no re-tagging needed — the tarball is built from the `v0.6.0` commit):
+  `npm publish --registry=https://registry.npmjs.org/ --access public --tag latest`
+  then verify `npm view @eternalnight/publish-kit dist-tags` shows `latest: 0.6.0`.
+
 ## [0.6.0-beta.1] - 2026-11-19
 
 ### Added
