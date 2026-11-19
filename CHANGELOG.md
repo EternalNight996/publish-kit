@@ -25,7 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Both scripts accept `--flag value` and `--flag=value` (the docs always showed the space form, the parsers only understood `=`).
 
 ### Published
-- npm `@eternalnight/publish-kit@0.6.0-beta.1` on dist-tag=`beta` (public test build; `latest` stays on 0.5.3 until the owner approves the stable release).
+- **Partial by design at the time of writing:** git tag `v0.6.0-beta.1` pushed to both remotes, GitHub Pre-release and Gitee Release (prerelease) created.
+- **npm closed:** `npm publish --tag beta` returned `403 … Your account has been temporarily suspended due to a recent security-sensitive action`, so neither `beta` nor `latest` moved. `latest` remains **0.5.3**. Install the beta from git until the account is cleared:
+  `npx @deepseek-ai/dsh plugin --profile web add github:EternalNight996/publish-kit#v0.6.0-beta.1`
+- Recovery once npm lifts the block: `npm publish --registry=https://registry.npmjs.org/ --access public --tag beta` from this commit, then verify `npm view @eternalnight/publish-kit dist-tags` shows `beta: 0.6.0-beta.1`.
 
 ## [0.5.3] - 2026-11-16
 

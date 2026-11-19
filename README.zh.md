@@ -505,7 +505,7 @@ PUBLISH_KIT_APPROVED=1 ./scripts/bootstrap-release.sh minor --grade release   # 
 
 ## 📦 发布记录
 
-- **v0.6.0-beta.1** (2026-11-19，公开测试版)：**发布分级 + 业主审批闸门**——`RELEASE-GRADES.md`（alpha / beta / rc / 正式版 / 补丁版）、两个发布脚本支持 `--grade` / `-Grade` 与 `--approved-by`、正式版缺批准直接 `exit 2`、不指定级别默认 beta、转正发布的是稳定版本号（不再把 `latest` 指到预发布串）、`npm test` 改跑 `scripts/self-check.mjs`（格式 + 链接 + 版本漂移 + 打包清单）、兼容 PowerShell 5.1、试跑不再留痕且不写 BOM。npm `@eternalnight/publish-kit@0.6.0-beta.1` 在 dist-tag=`beta`；`latest` 仍停在 0.5.3，等业主批准后再转正。
+- **v0.6.0-beta.1** (2026-11-19，公开测试版)：**发布分级 + 业主审批闸门**——`RELEASE-GRADES.md`（alpha / beta / rc / 正式版 / 补丁版）、两个发布脚本支持 `--grade` / `-Grade` 与 `--approved-by`、正式版缺批准直接 `exit 2`、不指定级别默认 beta、转正发布的是稳定版本号（不再把 `latest` 指到预发布串）、`npm test` 改跑 `scripts/self-check.mjs`（格式 + 链接 + 版本漂移 + 打包清单）、兼容 PowerShell 5.1、试跑不再留痕且不写 BOM。tag `v0.6.0-beta.1` + GitHub Pre-release + Gitee Release 已上线；**npm 待补**（`403 账号被临时封禁`）——先用 `github:EternalNight996/publish-kit#v0.6.0-beta.1` 从 git 安装，`latest` 仍停在 0.5.3 等业主批准。
 - **v0.5.3** (2026-11-16)：三份蒸馏作战手册 `RELEASE-WORKFLOW.md` / `README-DESIGN.md` / `PLUGIN-CENTER-PR.md`，接入 `SKILL.md` + `package.json#files` + CI；修 `TEMPLATE.md` 断裂内部链；`.claude-plugin` 清单版本回同步。npm `@eternalnight/publish-kit@0.5.3` 在 dist-tag=`latest`。
 - **v0.5.2** (2026-09-06)：`dsh.bundle.patch` 改指 `dsh-bundle-patch.yml`（显式 `[]` 空补丁，作为 loader 退出声明）；`cordis.patch.yml` 仅留作市场目录标记。修「把 bundle 放进 `bundles` 就开不了机」的 fail-loud。
 - **v0.5.1** (2026-09-06)：`postinstall` 在 `PUBLISH_KIT_FORCE=1` 下强制修复 skill 根下的真实目录（非链接），消除 DSH「declared entry artifact missing」启动失败；非 FORCE 路径仍保留用户数据。
