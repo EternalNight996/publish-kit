@@ -1,30 +1,44 @@
 # bootstrap-release.ps1
-# Standard release flow per publish-kit REFERENCE.md section A + K.
+# Standard release flow per publish-kit REFERENCE.md section A + K, and RELEASE-GRADES.md.
 #
-# Two release modes:
-#   .
-Recommended: PRERELEASE first, then PROMOTE
-#   1. .\bootstrap-release.ps1 -BumpType patch -PreRelease beta     # v0.4.1-beta.1 -> npm next tag + GitHub Pre-release
-#   2. validate, monitor, iterate .\bootstrap-release.ps1 -PreRelease beta -PreReleaseBump 1  # v0.4.1-beta.2
-#   3. when stable: .\bootstrap-release.ps1 -BumpType patch -PromoteFromBeta 1  # promote v0.4.1-beta.1 -> v0.4.1 latest
+# GRADES (owner rule: a stable version needs explicit approval):
+#   alpha   X.Y.Z-alpha.N  dist-tag alpha   internal preview, self-service
+#   beta    X.Y.Z-beta.N   dist-tag beta    public test, self-service (DEFAULT when -Grade is omitted)
+#   rc      X.Y.Z-rc.N     dist-tag rc      feature-frozen candidate, self-service
+#   release X.Y.Z          dist-tag latest  needs approval: $env:PUBLISH_KIT_APPROVED=1 or -ApprovedBy <owner>
+#   patch   X.Y.Z+1        dist-tag latest  needs approval, fixes only
+#
+# Examples:
+#   .\bootstrap-release.ps1 -BumpType minor -Grade beta
+#   .\bootstrap-release.ps1 -Grade beta -GradeBump 2
+#   $env:PUBLISH_KIT_APPROVED=1; .\bootstrap-release.ps1 -BumpType minor -Grade release
+#   .\bootstrap-release.ps1 -Grade release -PromoteFromBeta -PromoteVersion v0.4.1-rc.1 -ApprovedBy <owner>
+#
+# Windows PowerShell 5.1 blocks unsigned scripts: run with
+#   powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\bootstrap-release.ps1 -Grade beta -DryRun
 #
 # For exe projects see scripts/release-exe.ps1.
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$true)][ValidateSet('patch','minor','major')][string]$BumpType,
+    [ValidateSet('patch','minor','major')][string]$BumpType = 'patch',
+    [ValidateSet('alpha','beta','rc','release','patch','')][string]$Grade = '',
+    [int]$GradeBump = 1,
+    [string]$ApprovedBy = '',
     [string]$NpmRegistry = 'https://registry.npmjs.org/',
     [string]$CommitPrefix = 'chore: release',
-    [string]$PreRelease = '',  # '' = production; 'beta' / 'rc' / 'alpha' = prerelease
-    [int]$PreReleaseBump = 1,  # bump the prerelease counter (1 -> beta.1, 2 -> beta.2)
-    [switch]$PromoteFromBeta,  # move a prerelease dist-tag to latest
-    [string]$PromoteVersion = '',  # explicit version to promote; default = current next dist-tag
+    [string]$PreRelease = '',  # legacy alias: -PreRelease beta == -Grade beta
+    [int]$PreReleaseBump = 1,  # legacy alias for -GradeBump
+    [switch]$PromoteFromBeta,
+    [string]$PromoteVersion = '',
     [switch]$SkipGitTag,
     [switch]$SkipNpmPublish,
     [switch]$DryRun
 )
 
-$ErrorActionPreference = 'Stop'
+# 'Continue' keeps native stderr (npm notices, E404 probes) from aborting the run;
+# every step that matters checks $LASTEXITCODE explicitly instead.
+$ErrorActionPreference = 'Continue'
 
 $RepoRoot = git rev-parse --show-toplevel 2>$null
 if (-not $RepoRoot) { $RepoRoot = (Get-Location).Path }
@@ -35,149 +49,204 @@ function Info($msg) { Write-Host "  $msg" -ForegroundColor DarkGray }
 function Warn($msg) { Write-Host "  ! $msg" -ForegroundColor Yellow }
 function Fail($msg) { Write-Host "  X $msg" -ForegroundColor Red }
 
-# Sanity checks
+# npm view that tolerates E404 / offline and only returns a real semver (or $null).
+function Get-NpmVersion([string]$Spec, [string]$Field) {
+    $out = (npm view $Spec $Field --registry=$NpmRegistry 2>&1 | Out-String)
+    $match = ($out -split "`r?`n" | Where-Object { $_ -match '^\s*v?\d+\.\d+\.\d+' } | Select-Object -First 1)
+    if (-not $match) { return $null }
+    return ($match.Trim() -replace '^v', '')
+}
+
 if (-not (Test-Path package.json)) { throw "no package.json" }
 $pkg = Get-Content package.json -Raw | ConvertFrom-Json
+$PkgName = $pkg.name
 
-# Sanity: gh CLI for GitHub Release
 $hasGh = [bool](Get-Command gh -ErrorAction SilentlyContinue)
 if (-not $hasGh) { Warn "gh CLI not found; GitHub Release step will be skipped" }
 
-# Resolve pre-publish target version
-Step "Resolve target version"
+# --- grade normalization: legacy -PreRelease <tag> == -Grade <tag> ---
+if (-not $Grade -and $PreRelease) { $Grade = $PreRelease }
+if ($PreRelease -and $PreReleaseBump -ne 1) { $GradeBump = $PreReleaseBump }
+
+$defaulted = $false
 if ($PromoteFromBeta) {
-    # Promote: don't bump version, just move dist-tag from next/beta -> latest
+    $Grade = 'release'; $mode = 'promote'
+} elseif (-not $Grade) {
+    $Grade = 'beta'; $mode = 'test'; $defaulted = $true
+} elseif ($Grade -in @('alpha','beta','rc')) {
+    $mode = 'test'
+} elseif ($Grade -in @('release','patch')) {
+    $mode = 'stable'
+} else {
+    Fail "unknown grade: $Grade (allowed: alpha beta rc release patch)"; exit 2
+}
+
+function Test-Approval {
+    if ($env:PUBLISH_KIT_APPROVED -eq '1') { return $true }
+    if ($ApprovedBy) { return $true }
+    return $false
+}
+
+if ($defaulted) {
+    Warn "no -Grade given: publishing as beta (test build)."
+    Warn "a stable release/patch needs the owner's approval: `$env:PUBLISH_KIT_APPROVED=1 or -ApprovedBy <owner>"
+}
+
+if ($mode -in @('stable','promote') -and -not (Test-Approval)) {
+    Step "Approval gate"
+    Fail "grade=$Grade requires the owner's approval before it can reach dist-tag 'latest'."
+    Info "pass one of:"
+    Info "  `$env:PUBLISH_KIT_APPROVED=1; .\bootstrap-release.ps1 -BumpType $BumpType -Grade $Grade"
+    Info "  .\bootstrap-release.ps1 -BumpType $BumpType -Grade $Grade -ApprovedBy <owner>"
+    Info "or publish a test build instead (no approval needed):"
+    Info "  .\bootstrap-release.ps1 -BumpType $BumpType -Grade beta"
+    exit 2
+}
+if ($mode -in @('stable','promote')) {
+    Info "approval ok: $(if ($ApprovedBy) { "approved-by=$ApprovedBy" } else { 'PUBLISH_KIT_APPROVED=1' })"
+}
+
+Step "Resolve target version"
+$origPkg = Get-Content package.json -Raw
+$versionExists = $false
+
+if ($mode -eq 'promote') {
     if ($PromoteVersion) {
         $targetVersion = $PromoteVersion
     } else {
-        # Read current next tag
-        try {
-            $nextRaw = npm view $pkg.name dist-tags.next --registry=$NpmRegistry 2>$null
-            $targetVersion = $nextRaw.Trim()
-            if (-not $targetVersion) {
-                throw "no `next` dist-tag set; pass -PromoteVersion explicitly"
-            }
-        } catch {
-            throw "failed to read next dist-tag: $_"
-        }
+        $targetVersion = Get-NpmVersion $PkgName 'dist-tags.rc'
+        if (-not $targetVersion) { $targetVersion = Get-NpmVersion $PkgName 'dist-tags.beta' }
+        if (-not $targetVersion) { throw "no rc/beta dist-tag set; pass -PromoteVersion vX.Y.Z-<tag>.N" }
     }
-    Info "Promote mode: moving $targetVersion from dist-tag next -> latest"
-} elseif ($PreRelease) {
-    # Pre-release bump: bump prerelease counter on current package.json version
-    # If current version is X.Y.Z, target is X.Y.Z-<pre>.<n>
-    # If current is X.Y.Z-<pre>.<n>, target is X.Y.Z-<pre>.<n+1>
+    $targetVersion = $targetVersion -replace '^v', ''
+    $sourceVersion = $targetVersion
+    # promote publishes the STABLE version, never the prerelease string: 0.6.0-beta.2 -> 0.6.0
+    if ($targetVersion -match '^(\d+\.\d+\.\d+)-') { $targetVersion = $Matches[1] }
+    if (Get-NpmVersion "$PkgName@$targetVersion" 'version') {
+        $versionExists = $true
+        Info "Promote: $sourceVersion -> $targetVersion already on npm; will move dist-tag latest instead of republishing"
+    } else {
+        Info "Promote: $sourceVersion -> stable $targetVersion (dist-tag latest)"
+    }
+} elseif ($mode -eq 'test') {
     $cur = $pkg.version
     if ($cur -match '^(.+)-([a-zA-Z]+)\.(\d+)$') {
         $base = $Matches[1]; $curPre = $Matches[2]; $curNum = [int]$Matches[3]
-        if ($curPre -eq $PreRelease) {
-            $newNum = $curNum + $PreReleaseBump
-            $targetVersion = "$base-$PreRelease.$newNum"
-        } else {
-            $targetVersion = "$base-$PreRelease.$PreReleaseBump"
-        }
+        $newNum = if ($curPre -eq $Grade) { $curNum + $GradeBump } else { $GradeBump }
+        $targetVersion = "$base-$Grade.$newNum"
     } else {
-        # base release; bump via npm version and append -<pre>.<n>
-        $bumped = npm version $BumpType --no-git-tag-version 2>&1 | Out-String
-        if ($LASTEXITCODE -ne 0) { throw "npm version failed: $bumped" }
+        npm version $BumpType --no-git-tag-version > $null
+        if ($LASTEXITCODE -ne 0) { throw "npm version failed" }
         $pkg = Get-Content package.json -Raw | ConvertFrom-Json
-        $targetVersion = "$($pkg.version)-$PreRelease.$PreReleaseBump"
+        $targetVersion = "$($pkg.version)-$Grade.$GradeBump"
     }
-    Info "Pre-release target: $targetVersion (dist-tag: $PreRelease)"
+    Info "Grade $Grade target: $targetVersion (dist-tag: $Grade, GitHub Pre-release)"
 } else {
-    # Production bump
-    $bumped = npm version $BumpType --no-git-tag-version 2>&1 | Out-String
-    if ($LASTEXITCODE -ne 0) { throw "npm version failed: $bumped" }
+    $effectiveBump = $BumpType
+    if ($Grade -eq 'patch' -and $BumpType -ne 'patch') {
+        Warn "grade=patch forces a patch bump (no new features allowed in a patch)"
+        $effectiveBump = 'patch'
+    }
+    npm version $effectiveBump --no-git-tag-version > $null
+    if ($LASTEXITCODE -ne 0) { throw "npm version failed" }
     $pkg = Get-Content package.json -Raw | ConvertFrom-Json
     $targetVersion = $pkg.version
-    Info "Production target: $targetVersion (dist-tag: latest)"
+    Info "Grade $Grade target: $targetVersion (dist-tag: latest, production release)"
 }
 
-# Set version in package.json (for pre-release or promote modes, npm version didn't write the full form)
-if ($targetVersion -ne $pkg.version) {
+$cur = $pkg.version
+if ($targetVersion -ne $cur) {
     Info "Updating package.json version to $targetVersion"
-    $pkg.version = $targetVersion
-    $pkg | ConvertTo-Json -Depth 10 | Set-Content package.json -Encoding UTF8
+    node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.version=process.argv[1];fs.writeFileSync('package.json',JSON.stringify(p,null,4)+'\n');" $targetVersion
+    if ($LASTEXITCODE -ne 0) { throw "failed to write package.json version" }
     $pkg = Get-Content package.json -Raw | ConvertFrom-Json
 }
 
-# Show dry-run summary and exit
+$distTag = if ($mode -eq 'test') { $Grade } else { 'latest' }
+$prereleaseFlag = if ($mode -eq 'test') { '--prerelease' } else { '--prerelease=false' }
+
 if ($DryRun) {
     Step "Dry-run summary"
+    Info "grade: $Grade ($mode)"
     Info "target version: $targetVersion"
-    Info "dist-tag: $(if ($PromoteFromBeta) { 'latest (promote)' } elseif ($PreRelease) { $PreRelease } else { 'latest' })"
+    Info "dist-tag: $distTag"
     Info "git tag: v$targetVersion"
-    Info "GitHub Release: $(if ($PreRelease -or $PromoteFromBeta) { 'pre-release' } else { 'production' })"
+    Info "GitHub Release: $(if ($prereleaseFlag -eq '--prerelease') { 'pre-release' } else { 'production' })"
+    Info "approval: $(if ($mode -eq 'test') { 'not required (test grade)' } elseif (Test-Approval) { 'ok' } else { 'MISSING -> would exit 2' })"
+    # WriteAllText with a BOM-less encoder: Set-Content -Encoding utf8 emits a BOM on PS 5.1 and breaks JSON.parse
+    [System.IO.File]::WriteAllText((Join-Path (Get-Location) 'package.json'), $origPkg, (New-Object System.Text.UTF8Encoding($false)))
+    Info "(package.json restored: dry-run writes nothing)"
     exit 0
 }
 
-# Step 1: tests + build
 Step "Test + build"
 npm test
-$buildCmd = $pkg.scripts.build
-if ($buildCmd) { npm run build }
+if ($LASTEXITCODE -ne 0) { throw "npm test failed" }
+if ($pkg.scripts.build) {
+    npm run build
+    if ($LASTEXITCODE -ne 0) { throw "npm run build failed" }
+}
 
-# Step 2: stage + commit
 Step "Commit"
 git add -A
-git commit -m "$CommitPrefix v$targetVersion" --allow-empty
+git commit -m "$CommitPrefix v$targetVersion" --allow-empty > $null
+if ($LASTEXITCODE -ne 0) { Warn "nothing to commit (or commit failed); continuing" }
 
-# Step 3: npm publish (with throwaway token)
 if (-not $SkipNpmPublish) {
-    Step "npm publish (dist-tag: $(if ($PromoteFromBeta) { 'latest' } elseif ($PreRelease) { $PreRelease } else { 'latest' }))"
+    Step "npm publish (dist-tag: $distTag)"
     $tokenPath = ".npmrc.publish"
-    if (Test-Path $tokenPath) {
-        Info "using existing $tokenPath"
-    } else {
-        Info "enter npm auth token (will be written to .npmrc.publish and removed after):"
+    if (-not (Test-Path $tokenPath)) {
+        Info "enter npm auth token (written to .npmrc.publish, removed after):"
         $token = Read-Host -AsSecureString
         $plain = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($token))
         "//registry.npmjs.org/:_authToken=$plain" | Set-Content -Path $tokenPath -Encoding Ascii
     }
     try {
-        $publishTag = if ($PromoteFromBeta) { 'latest' } elseif ($PreRelease) { $PreRelease } else { 'latest' }
-        npm publish --registry=$NpmRegistry --access public --tag $publishTag 2>&1 | Select-Object -First 20
+        if ($versionExists) {
+            npm dist-tag add "$PkgName@$targetVersion" $distTag --registry=$NpmRegistry
+        } else {
+            npm publish --registry=$NpmRegistry --access public --tag $distTag
+        }
+        if ($LASTEXITCODE -ne 0) { throw "npm publish failed (2FA / network / version conflict?)" }
     } finally {
         Remove-Item $tokenPath -ErrorAction SilentlyContinue
     }
 }
 
-# Step 4: git tag + push both remotes
 if (-not $SkipGitTag) {
     Step "git tag v$targetVersion + push"
-    git tag -a "v$targetVersion" -m "v$targetVersion"
+    git tag -a "v$targetVersion" -m "v$targetVersion (grade: $Grade)"
+    if ($LASTEXITCODE -ne 0) { throw "git tag failed (tag already exists?)" }
     git show "v$targetVersion" --no-patch --format='%s'
     git push origin main --tags
-    if (git remote get-url gitee >$null 2>&1) {
-        git push gitee main --tags || Warn "gitee push failed (skip if remote not configured)"
+    if ($LASTEXITCODE -ne 0) { throw "git push origin failed" }
+    $giteeUrl = (git remote get-url gitee 2>&1 | Out-String)
+    if ($LASTEXITCODE -eq 0 -and $giteeUrl -and $giteeUrl -notmatch 'error|fatal') {
+        git push gitee main --tags
+        if ($LASTEXITCODE -ne 0) { Warn "gitee push failed (skip if remote not configured)" }
     }
 }
 
-# Step 5: GitHub Release
 if ($hasGh) {
     Step "GitHub Release v$targetVersion"
-    $isPrerelease = ($PreRelease -or $PromoteFromBeta)
-    $origin = git remote get-url origin
+    $origin = (git remote get-url origin 2>&1 | Out-String).Trim()
     if ($origin -match 'github\.com[:/](.+?)/(.+?)\.git$') {
-    $Repo = ($origin -replace '.*github\.com[:/](.+?)/(.+?)\.git$', '$1/$2')
-    $prereleaseFlag = if ($isPrerelease) { '--prerelease' } else { '--prerelease=false' }
-    $releaseArgs = @('release','create',"v$targetVersion","--repo",$Repo,$prereleaseFlag,'--title',"v$targetVersion",'--generate-notes')
-    # Allow scripts to attach to release via npm package `files` (no executables for bootstrap)
-    & gh @releaseArgs
-    if ($LASTEXITCODE -ne 0) { Warn "gh release create failed" }
+        $Repo = "$($Matches[1])/$($Matches[2])"
+        & gh release create "v$targetVersion" --repo $Repo $prereleaseFlag --title "v$targetVersion" --generate-notes
+        if ($LASTEXITCODE -ne 0) { Warn "gh release create failed" }
     }
 }
 
 Step "Done"
+Info "grade: $Grade"
 Info "version: v$targetVersion"
-Info "npm dist-tag: $(if ($PromoteFromBeta) { 'latest' } elseif ($PreRelease) { $PreRelease } else { 'latest' })"
-Info "git tag pushed to: $(if (git remote get-url origin >$null) { 'origin' } else { 'NO ORIGIN' }), gitee"
-Info "GitHub Release: $(if ($PreRelease -or $PromoteFromBeta) { 'pre-release' } else { 'production' })"
+Info "npm dist-tag: $distTag"
+Info "git tag pushed to: origin, gitee (if configured)"
+Info "GitHub Release: $(if ($prereleaseFlag -eq '--prerelease') { 'pre-release' } else { 'production' })"
 
-# Promote follow-up hint
-if ($PreRelease -and -not $PromoteFromBeta) {
+if ($mode -eq 'test') {
     Write-Host ""
-    Write-Host "Next: when this prerelease is stable, promote it to latest:" -ForegroundColor Yellow
-    Write-Host "  .\bootstrap-release.ps1 -BumpType patch -PromoteFromBeta -PromoteVersion v$targetVersion" -ForegroundColor Yellow
-    Write-Host "  or simply:" -ForegroundColor Yellow
-    Write-Host "  npm dist-tag add $pkg.name@$targetVersion latest --registry=$NpmRegistry" -ForegroundColor Yellow
+    Write-Host "Next: when this $Grade is validated and the owner approves, promote it to latest:" -ForegroundColor Yellow
+    Write-Host "  .\bootstrap-release.ps1 -Grade release -PromoteFromBeta -PromoteVersion v$targetVersion -ApprovedBy <owner>" -ForegroundColor Yellow
+    Write-Host "  or simply: npm dist-tag add $PkgName@$targetVersion latest --registry=$NpmRegistry" -ForegroundColor Yellow
 }

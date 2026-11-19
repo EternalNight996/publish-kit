@@ -1,6 +1,6 @@
 {
     "name": "@eternalnight/publish-kit",
-    "version": "0.5.3",
+    "version": "0.6.0-beta.1",
     "description": "Release playbook for AI agents. npm-installable CLI + DSH plugin + skill bundle. Covers npm, GitHub+Gitee dual remote, DSH marketplace, cargo crates.io, PyPI, PyInstaller exe, Go single-binary, Rust single-binary, Electron/Tauri desktop. Bilingual EN/ZH.",
     "keywords": [
         "publishing",
@@ -57,13 +57,20 @@
         ".agents/skills/publish-kit/RELEASE-WORKFLOW.md",
         ".agents/skills/publish-kit/README-DESIGN.md",
         ".agents/skills/publish-kit/PLUGIN-CENTER-PR.md",
+        ".agents/skills/publish-kit/RELEASE-GRADES.md",
         "assets/readme-banner.svg",
         "cordis.patch.yml",
         "dsh-bundle-patch.yml",
-        "scripts/postinstall.js"
+        "scripts/postinstall.js",
+        "scripts/self-check.mjs"
     ],
     "scripts": {
-        "postinstall": "node ./scripts/postinstall.js"
+        "postinstall": "node ./scripts/postinstall.js",
+        "test": "node ./scripts/self-check.mjs",
+        "release:alpha": "sh ./scripts/bootstrap-release.sh minor --grade alpha",
+        "release:beta": "sh ./scripts/bootstrap-release.sh minor --grade beta",
+        "release:rc": "sh ./scripts/bootstrap-release.sh minor --grade rc",
+        "release:dry": "sh ./scripts/bootstrap-release.sh patch --grade beta --dry-run"
     },
     "engines": {
         "node": ">=18"

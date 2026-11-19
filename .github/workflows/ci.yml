@@ -78,7 +78,8 @@ jobs:
                           '.agents/skills/publish-kit/REFERENCE.md', '.agents/skills/publish-kit/TEMPLATE.md',
                           '.agents/skills/publish-kit/INSTALL.md', '.agents/skills/publish-kit/DSH-DEPLOY.md',
                           '.agents/skills/publish-kit/COMPATIBILITY.md', '.agents/skills/publish-kit/EXAMPLES.md',
-                          '.agents/skills/publish-kit/RELEASE-WORKFLOW.md', '.agents/skills/publish-kit/PLUGIN-CENTER-PR.md']:
+                          '.agents/skills/publish-kit/RELEASE-WORKFLOW.md', '.agents/skills/publish-kit/PLUGIN-CENTER-PR.md',
+                          '.agents/skills/publish-kit/RELEASE-GRADES.md']:
               # README-DESIGN.md is intentionally excluded: it embeds a copy-paste README template whose
               # links (README.en.md, docs/GUIDE.md, ...) are relative to the TARGET repo, not to this skill dir.
               path = os.path.join(root, readme)
@@ -115,6 +116,9 @@ jobs:
       - name: npm pack --dry-run
         run: |
           npm pack --dry-run
+
+      - name: Self-check (same gate the release scripts run)
+        run: node ./scripts/self-check.mjs
 
       - name: Verify package.json has required fields
         run: |

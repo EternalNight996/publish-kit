@@ -416,7 +416,30 @@ publish-kit/
     ├── EXAMPLES.md        # 实战 transcript
     ├── RELEASE-WORKFLOW.md # 12 阶段发布 SOP、闸门、版本漂移检查、失败模式表
     ├── README-DESIGN.md   # 19 节 README 规范、双语守卫、填空骨架
-    └── PLUGIN-CENTER-PR.md # 收录链路、PR 对象清单、宣传素材、公告模板
+    ├── PLUGIN-CENTER-PR.md # 收录链路、PR 对象清单、宣传素材、公告模板
+    └── RELEASE-GRADES.md  # alpha / beta / rc / 正式版 / 补丁 + 业主审批闸门
+```
+
+---
+
+## 🚦 发布分级与审批闸门
+
+五个级别、五种版本号。`latest` **只**承载正式版与补丁版。
+
+| 级别 | 版本号 | npm dist-tag | GitHub Release | 谁能发 |
+| --- | --- | --- | --- | --- |
+| Alpha | `X.Y.Z-alpha.N` | `alpha` | Pre-release | 任何人（内部预览） |
+| Beta | `X.Y.Z-beta.N` | `beta` | Pre-release | 任何人（公开测试，**默认**） |
+| RC | `X.Y.Z-rc.N` | `rc` | Pre-release | 任何人（功能冻结） |
+| 正式版 | `X.Y.Z` | `latest` | Production | **需业主批准** |
+| 补丁版 | `X.Y.Z+1` | `latest` | Production | **需业主批准**，只含修复 |
+
+正式版必须拿到业主明文批准——对话内授权、`PUBLISH_KIT_APPROVED=1`、或 `--approved-by=<业主>`。没批准时脚本直接 `exit 2`，并打印等价的 beta 命令。完整表格、命令矩阵与各级别错误表见 [RELEASE-GRADES.md](.agents/skills/publish-kit/RELEASE-GRADES.md)。
+
+```bash
+npm run release:beta     # 自助发测试版
+npm run release:dry      # 试跑：只打印级别/版本/dist-tag/是否已批准，什么都不写
+PUBLISH_KIT_APPROVED=1 ./scripts/bootstrap-release.sh minor --grade release   # 仅在业主批准后
 ```
 
 ---
@@ -482,6 +505,7 @@ publish-kit/
 
 ## 📦 发布记录
 
+- **v0.6.0-beta.1** (2026-11-19，公开测试版)：**发布分级 + 业主审批闸门**——`RELEASE-GRADES.md`（alpha / beta / rc / 正式版 / 补丁版）、两个发布脚本支持 `--grade` / `-Grade` 与 `--approved-by`、正式版缺批准直接 `exit 2`、不指定级别默认 beta、转正发布的是稳定版本号（不再把 `latest` 指到预发布串）、`npm test` 改跑 `scripts/self-check.mjs`（格式 + 链接 + 版本漂移 + 打包清单）、兼容 PowerShell 5.1、试跑不再留痕且不写 BOM。npm `@eternalnight/publish-kit@0.6.0-beta.1` 在 dist-tag=`beta`；`latest` 仍停在 0.5.3，等业主批准后再转正。
 - **v0.5.3** (2026-11-16)：三份蒸馏作战手册 `RELEASE-WORKFLOW.md` / `README-DESIGN.md` / `PLUGIN-CENTER-PR.md`，接入 `SKILL.md` + `package.json#files` + CI；修 `TEMPLATE.md` 断裂内部链；`.claude-plugin` 清单版本回同步。npm `@eternalnight/publish-kit@0.5.3` 在 dist-tag=`latest`。
 - **v0.5.2** (2026-09-06)：`dsh.bundle.patch` 改指 `dsh-bundle-patch.yml`（显式 `[]` 空补丁，作为 loader 退出声明）；`cordis.patch.yml` 仅留作市场目录标记。修「把 bundle 放进 `bundles` 就开不了机」的 fail-loud。
 - **v0.5.1** (2026-09-06)：`postinstall` 在 `PUBLISH_KIT_FORCE=1` 下强制修复 skill 根下的真实目录（非链接），消除 DSH「declared entry artifact missing」启动失败；非 FORCE 路径仍保留用户数据。

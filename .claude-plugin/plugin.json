@@ -1,7 +1,7 @@
 {
   "name": "publish-kit",
   "description": "Release playbook for AI agents covering npm / GitHub / Gitee / DSH marketplace / cargo crates.io / PyPI / PyInstaller multi-channel publish, bilingual README design, git tag SOP, and npm package slimming.",
-  "version": "0.5.3",
+  "version": "0.6.0-beta.1",
   "author": {
     "name": "EternalNight996",
     "email": ""

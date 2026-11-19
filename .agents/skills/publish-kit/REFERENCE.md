@@ -104,6 +104,12 @@ package.json for listing: `keywords` must include `dsh-plugin`; `repository`, `h
 
 ## K. Pre-release / dist-tag strategy
 
+### K.0 Grade + approval gate (read first)
+
+Five grades, five version shapes, five dist-tags: **alpha** (`X.Y.Z-alpha.N`, internal preview) → **beta** (`X.Y.Z-beta.N`, public test, **default**) → **rc** (`X.Y.Z-rc.N`, feature-frozen) → **release** (`X.Y.Z`, `latest`) → **patch** (`X.Y.Z+1`, `latest`, fixes only).
+
+`latest` carries only release / patch. Those two require the owner's explicit approval in the same conversation, or `PUBLISH_KIT_APPROVED=1`, or `--approved-by=<owner>`. Without approval the highest grade available is a test build; `bootstrap-release.{sh,ps1}` refuses with `exit 2` and prints the beta equivalent. Full table, command matrix, promotion path and per-grade failure list: [RELEASE-GRADES.md](RELEASE-GRADES.md).
+
 **Default SOP**: never publish a non-trivial change directly to `latest`. Ship a pre-release first, validate, then promote.
 
 ### K.1 Why pre-release first

@@ -413,7 +413,30 @@ publish-kit/
     ├── EXAMPLES.md        # worked transcripts
     ├── RELEASE-WORKFLOW.md # 12-stage release SOP, gates, drift check, failure table
     ├── README-DESIGN.md   # 19-section README spec, bilingual guards, skeleton
-    └── PLUGIN-CENTER-PR.md # discovery chain, PR targets, promo assets, announcement templates
+    ├── PLUGIN-CENTER-PR.md # discovery chain, PR targets, promo assets, announcement templates
+    └── RELEASE-GRADES.md  # alpha / beta / rc / release / patch + owner approval gate
+```
+
+---
+
+## 🚦 Release grades and the approval gate
+
+Five grades, five version shapes. `latest` carries **only** release and patch.
+
+| Grade | Version | npm dist-tag | GitHub Release | Who ships it |
+| --- | --- | --- | --- | --- |
+| Alpha | `X.Y.Z-alpha.N` | `alpha` | Pre-release | anyone (internal preview) |
+| Beta | `X.Y.Z-beta.N` | `beta` | Pre-release | anyone (public test, **default**) |
+| RC | `X.Y.Z-rc.N` | `rc` | Pre-release | anyone (feature-frozen) |
+| Release | `X.Y.Z` | `latest` | Production | **owner approval required** |
+| Patch | `X.Y.Z+1` | `latest` | Production | **owner approval required**, fixes only |
+
+A stable version needs the owner's explicit approval — in-conversation, `PUBLISH_KIT_APPROVED=1`, or `--approved-by=<owner>`. Without it the scripts stop with `exit 2` and print the equivalent beta command. Full table, command matrix and grade failure list: [RELEASE-GRADES.md](.agents/skills/publish-kit/RELEASE-GRADES.md).
+
+```bash
+npm run release:beta     # self-service test build
+npm run release:dry      # dry-run: prints grade, version, dist-tag, approval status, writes nothing
+PUBLISH_KIT_APPROVED=1 ./scripts/bootstrap-release.sh minor --grade release   # only after the owner approves
 ```
 
 ---
@@ -479,6 +502,7 @@ For any non-trivial change, publish a pre-release first, validate, then promote 
 
 ## 📦 Release log
 
+- **v0.6.0-beta.1** (2026-11-19, public test build): **release grades + owner approval gate** — `RELEASE-GRADES.md` (alpha / beta / rc / release / patch), `--grade` / `-Grade` + `--approved-by` in both release scripts, gate exits `2` when a stable grade lacks approval, omitting a grade now defaults to beta, promote publishes the stable version instead of moving `latest` onto a prerelease, `npm test` runs `scripts/self-check.mjs` (format + link + version-drift + tarball checks), PowerShell 5.1 compatibility and BOM-free dry-run restore. npm `@eternalnight/publish-kit@0.6.0-beta.1` on dist-tag=`beta`; `latest` stays on 0.5.3 until the owner approves.
 - **v0.5.3** (2026-11-16): three distilled playbooks — `RELEASE-WORKFLOW.md` / `README-DESIGN.md` / `PLUGIN-CENTER-PR.md` — wired into `SKILL.md` + `package.json#files` + CI; `TEMPLATE.md` internal link fixed; `.claude-plugin` manifests version-synced. npm `@eternalnight/publish-kit@0.5.3` on dist-tag=`latest`.
 - **v0.5.2** (2026-09-06): `dsh.bundle.patch` moved to `dsh-bundle-patch.yml` (explicit `[]` loader opt-out); `cordis.patch.yml` stays as the marketplace catalog marker only. Fixes profiles that put the bundle in `bundles` and failed loudly on boot.
 - **v0.5.1** (2026-09-06): `postinstall` FORCE-heals a real (non-link) directory at the skill root, removing the DSH "declared entry artifact missing" boot failure; the non-FORCE path still preserves user data.

@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0-beta.1] - 2026-11-19
+
+### Added
+- `RELEASE-GRADES.md` — **alpha / beta / rc / release / patch** grades with their version shapes, dist-tags, GitHub Release flags, who may ship them, and the **owner-approval gate**: a stable version (release or patch) needs explicit approval (in-conversation, `PUBLISH_KIT_APPROVED=1`, or `--approved-by=<owner>`); without it the highest available grade is a test build. Includes the command matrix, promotion path, per-grade channel matrix and a grade-specific failure table.
+- `bootstrap-release.{sh,ps1}`: `--grade` / `-Grade` (`alpha|beta|rc|release|patch`), `--grade-bump` / `-GradeBump`, `--approved-by` / `-ApprovedBy`; the approval gate exits `2` and prints the equivalent beta command instead of publishing.
+- `scripts/self-check.mjs` wired as `npm test`: verifies package fields, SKILL.md house format (≤100 lines, frontmatter, `Use when`), version sync across host manifests, internal markdown links, the CHANGELOG entry for the current version, and that every skill document is listed in `package.json#files`.
+- `npm run release:alpha` / `release:beta` / `release:rc` / `release:dry` shortcuts.
+- `SKILL.md`: a "Grade gate" section that must be read before any publish command; `REFERENCE.md` K.0 summarises the grades and links to the new playbook.
+
+### Changed
+- Omitting a grade now **defaults to beta** (test build) and says so; previously an unspecified release went straight to `latest`.
+- Promote mode publishes the **stable** version (`0.6.0-beta.2` → `0.6.0` on `latest`) instead of moving `latest` onto a prerelease string; if that stable version already exists, it moves the dist-tag instead of republishing.
+- `grade=patch` forces a patch bump — a patch cannot introduce features.
+
+### Fixed
+- `bootstrap-release.ps1` was unrunnable on Windows PowerShell 5.1: `||` is not a statement separator there, `-BumpType` was mandatory even when the grade did not need a bump, and native stderr (npm notices, E404 probes) aborted the run under `$ErrorActionPreference='Stop'`. It now runs under both 5.1 and 7 and checks `$LASTEXITCODE` explicitly.
+- `bootstrap-release.{sh,ps1}` `--dry-run` used to leave a bumped `package.json` behind; it now restores the original bytes (and PS writes them BOM-free, which previously corrupted the file for `JSON.parse`).
+- Both scripts accept `--flag value` and `--flag=value` (the docs always showed the space form, the parsers only understood `=`).
+
+### Published
+- npm `@eternalnight/publish-kit@0.6.0-beta.1` on dist-tag=`beta` (public test build; `latest` stays on 0.5.3 until the owner approves the stable release).
+
 ## [0.5.3] - 2026-11-16
 
 ### Added
