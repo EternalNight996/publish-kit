@@ -1,6 +1,6 @@
 ---
 name: publish-kit
-description: 发布工具箱，覆盖 npm / GitHub / Gitee / DSH 插件市场 / cargo crates.io / PyPI 多渠道发布，发布分级（alpha / beta / rc / 正式版 / 补丁）与业主审批闸门，README 双语排版设计，git tag 发版 SOP，以及 npm 包瘦身。Use when the user wants to publish or release a package/plugin, choose or apply a release grade (alpha / beta / rc / release / patch), get approval before shipping a stable version, submit to a marketplace, bump a version, cut git tags, write or restructure a README, slim an npm package, or push to GitHub/Gitee remotes.
+description: 发布工具箱，覆盖 npm / GitHub / Gitee / DSH 插件市场 / cargo crates.io / PyPI 多渠道发布，发布分级（alpha / beta / rc / 正式版 / 补丁）与业主审批闸门，README 双语排版设计，git tag 发版 SOP，以及 npm 包瘦身；发版门禁覆盖构建与部署校验。Use when the user wants to publish or release a package/plugin, choose or apply a release grade (alpha / beta / rc / release / patch), get approval before shipping a stable version, submit to a marketplace, bump a version, cut git tags, write or restructure a README, slim an npm package, or push to GitHub/Gitee remotes.
 ---
 
 # Publish Kit
